@@ -1,12 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8b7bff" />
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c4b5fd" />
+      <stop offset="45%" stop-color="#7c5cff" />
       <stop offset="100%" stop-color="#22d3ee" />
     </linearGradient>
+    <linearGradient id="bolt" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#d9d9ff" />
+    </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="8" fill="#0f0f14" />
-  <path d="M11 10.5 6.5 16 11 21.5" fill="none" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M21 10.5 25.5 16 21 21.5" fill="none" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M18 8.5 14 23.5" fill="none" stroke="#e7e7ee" stroke-width="2.4" stroke-linecap="round" />
+  <rect width="40" height="40" rx="10" fill="#0f0f14" />
+  <circle cx="20" cy="20" r="14.5" fill="none" stroke="url(#ring)" stroke-width="4.5"
+          stroke-linecap="round" stroke-dasharray="70 21" transform="rotate(-58 20 20)" />
+  <circle cx="31.2" cy="10.4" r="3.1" fill="#22d3ee" />
+  <path d="M22.4 10.5 13.2 21.4h5.1l-1.7 8.1 9.2-10.9h-5.1z" fill="url(#bolt)"
+        stroke="#0f0f14" stroke-width="1.1" stroke-linejoin="round" />
 </svg>

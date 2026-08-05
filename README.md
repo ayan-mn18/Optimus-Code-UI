@@ -1,7 +1,8 @@
 # Optimus Code — UI
 
 Frontend for **Optimus Code**, a daily DSA challenge platform built on the
-[Striver SDE Sheet](https://takeuforward.org/dsa/strivers-sde-sheet-top-coding-interview-problems).
+[Striver SDE Sheet](https://takeuforward.org/dsa/strivers-sde-sheet-top-coding-interview-problems)
+and [A2Z Sheet](https://takeuforward.org/dsa/strivers-a2z-sheet-learn-dsa-a-to-z) — 544 problems across 19 topics.
 
 Sign up, join the challenge, and get **5 problems every morning** — each from a different
 topic. Clear all five and the day goes green. Fall short and it turns **red**: the problems
@@ -41,12 +42,24 @@ npm run typecheck  # types only
 
 | Route         | What it does                                                                 |
 | ------------- | ---------------------------------------------------------------------------- |
+| `/`           | Marketing landing page — 3D parallax hero, waitlist, sheet coverage           |
 | `/signup`     | Split-screen signup — the pitch on the left, three fields on the right        |
 | `/login`      | Same shell, sign-in form                                                     |
 | `/onboarding` | Pick a daily target (3 / 5 / 8) and start the challenge                       |
 | `/dashboard`  | Today's set, day ring, streak, consistency heatmap, topic mastery, difficulty |
-| `/problems`   | All 191 problems — filter by topic, difficulty, solve state, or title         |
+| `/problems`   | All 544 problems — filter by topic, difficulty, solve state, or title         |
 | `/settings`   | Profile, timezone, daily target                                              |
+
+## The landing page
+
+The hero is a CSS 3D scene rather than a WebGL canvas — a shared `perspective`, layers at
+different `translateZ`, and pointer-driven `rotateX`/`rotateY` damped through Framer Motion
+springs. Nearer layers parallax further, which is what sells the depth. No 3D library, so it
+costs nothing in bundle size, and the whole thing flattens to a static layout under
+`prefers-reduced-motion`.
+
+The waitlist form posts to `POST /api/waitlist` and shows the live signup count. Joining
+twice is a success state, not an error.
 
 ## Design notes
 
@@ -71,12 +84,13 @@ exposes a per-cell readout on hover and focus.
 src/
   components/
     charts/      DayRing, Heatmap, TopicMastery, DifficultySplit, palette
+    landing/     HeroScene, WaitlistForm, TiltCard, useTilt
     dashboard/   TodayPanel, ProblemRow, StatTiles
     layout/      AppShell, Logo
     ui/          Button, Card, Field, badges, skeletons
   hooks/         TanStack Query hooks + optimistic solve toggle
   lib/           api client (token refresh), types, helpers
-  pages/         AuthPage, Onboarding, Dashboard, Problems, Settings
+  pages/         Landing, AuthPage, Onboarding, Dashboard, Problems, Settings
   store/         auth context
 ```
 

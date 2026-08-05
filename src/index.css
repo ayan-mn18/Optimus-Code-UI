@@ -95,8 +95,10 @@
     box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 24px 48px -32px rgba(0, 0, 0, 0.9);
   }
 
+  /* Starts on brand rather than ink — an ink stop reads as a colour change
+     part-way through a word when the span is only a word or two long. */
   .gradient-text {
-    background: linear-gradient(100deg, var(--color-ink) 10%, var(--color-brand-soft) 55%, var(--color-accent) 95%);
+    background: linear-gradient(100deg, var(--color-brand-pale) 0%, var(--color-brand) 45%, var(--color-accent) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

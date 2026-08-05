@@ -131,4 +131,12 @@ export const api = {
   },
 
   topics: () => request<{ topics: { topic: string; total: number }[] }>('/api/dashboard/topics'),
+
+  waitlistCount: () => request<{ count: number }>('/api/waitlist'),
+
+  joinWaitlist: (data: { email: string; name?: string; referrer?: string }) =>
+    request<{ joined: boolean; alreadyJoined: boolean; count: number }>('/api/waitlist', {
+      method: 'POST',
+      ...body(data),
+    }),
 };

@@ -16,7 +16,7 @@ export function TopicMastery({ topics }: { topics: TopicStat[] }) {
     <Card>
       <CardHeader
         title="Topic mastery"
-        hint="Problems solved in each topic of the SDE sheet"
+        hint="Problems solved in each topic of the sheets"
         action={
           <Link
             to="/problems"

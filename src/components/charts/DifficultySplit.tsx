@@ -8,9 +8,11 @@ import type { Overview } from '@/lib/types';
  * labelled — the words carry the identity, the ramp carries the order.
  */
 export function DifficultySplit({ data }: { data: Overview['difficulty'] }) {
+  const total = data.reduce((sum, row) => sum + row.total, 0);
+
   return (
     <Card>
-      <CardHeader title="By difficulty" hint="Across all 191 problems" />
+      <CardHeader title="By difficulty" hint={`Across all ${total} problems`} />
 
       <div className="space-y-4">
         {data.map((row) => (

@@ -38,7 +38,8 @@ export function Problems() {
         <p className="text-xs uppercase tracking-wider text-ink-dim">Library</p>
         <h1 className="mt-1 text-xl font-semibold tracking-tight">All problems</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          The full Striver SDE Sheet. Anything you tick here beyond today&rsquo;s five counts as a bonus solve.
+          The Striver SDE and A2Z sheets, merged and deduped. Anything you tick here beyond today&rsquo;s five
+          counts as a bonus solve.
         </p>
       </div>
 

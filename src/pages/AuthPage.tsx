@@ -8,7 +8,7 @@ import { useAuth } from '@/store/auth';
 import { ApiError } from '@/lib/api';
 
 const HIGHLIGHTS = [
-  { icon: Layers, title: '191 problems, 13 topics', body: 'The full Striver SDE Sheet, links to LeetCode and the walkthrough video.' },
+  { icon: Layers, title: '544 problems, 19 topics', body: 'The Striver SDE and A2Z sheets, with links to LeetCode and the walkthrough video.' },
   { icon: Shuffle, title: '5 a day, never the same topic twice', body: 'A fresh set every morning, weighted toward the topics you have touched least.' },
   { icon: Flame, title: 'Miss a day, it turns red', body: 'Whatever you skipped drops back in the mix and comes around again.' },
 ];
