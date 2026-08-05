@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Sparkles, PartyPopper, AlertTriangle } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
@@ -74,9 +75,9 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
                   <PartyPopper className="size-5 shrink-0 text-good" />
                   <p className="text-sm text-ink-muted">
                     Target met. Head to{' '}
-                    <a href="/problems" className="text-brand-pale underline underline-offset-2">
+                    <Link to="/problems" className="text-brand-pale underline underline-offset-2">
                       all problems
-                    </a>{' '}
+                    </Link>{' '}
                     to keep going — extras count as bonus.
                   </p>
                 </div>
