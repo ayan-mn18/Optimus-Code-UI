@@ -1,4 +1,14 @@
-import type { Enrollment, Overview, Problem, Session, Streak, TodayResponse, User } from './types';
+import type {
+  Enrollment,
+  Leaderboard,
+  Overview,
+  Problem,
+  Recap,
+  Session,
+  Streak,
+  TodayResponse,
+  User,
+} from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
 const ACCESS_KEY = 'oc.access';
@@ -100,7 +110,7 @@ export const api = {
 
   me: () => request<{ user: User; enrollment: Enrollment | null }>('/api/auth/me'),
 
-  updateProfile: (data: { name?: string; timezone?: string }) =>
+  updateProfile: (data: { name?: string; timezone?: string; showOnLeaderboard?: boolean }) =>
     request<{ user: User }>('/api/auth/me', { method: 'PATCH', ...body(data) }),
 
   challenge: () => request<{ enrollment: Enrollment | null; streak: Streak | null }>('/api/challenge'),
@@ -133,6 +143,11 @@ export const api = {
   },
 
   topics: () => request<{ topics: { topic: string; total: number }[] }>('/api/dashboard/topics'),
+
+  recap: (weeksAgo = 0) => request<Recap>(`/api/dashboard/recap?weeksAgo=${weeksAgo}`),
+
+  leaderboard: (metric: Leaderboard['metric'] = 'streak') =>
+    request<Leaderboard>(`/api/leaderboard?metric=${metric}`),
 
   waitlistCount: () => request<{ count: number }>('/api/waitlist'),
 

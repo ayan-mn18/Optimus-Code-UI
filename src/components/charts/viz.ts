@@ -21,7 +21,7 @@ export const INK = {
   surface: '#131318',
 } as const;
 
-export const STATUS = { complete: '#34d399', missed: '#f4696b' } as const;
+export const STATUS = { complete: '#34d399', missed: '#f4696b', frozen: '#38bdf8' } as const;
 
 /** Maps a solve count onto the ramp; 0 stays near the surface. */
 export function heatStep(count: number, target: number) {

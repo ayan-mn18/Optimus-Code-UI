@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Sparkles, PartyPopper, AlertTriangle, Layers, Library } from 'lucide-react';
+import { Sparkles, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
 import { Button, Card } from '@/components/ui/primitives';
@@ -177,23 +177,34 @@ function KeepGoing({ today }: { today: TodayResponse }) {
 
 function RedDayNotice({ closedDays }: { closedDays: TodayResponse['closedDays'] }) {
   const missed = closedDays.filter((day) => day.status === 'missed');
-  if (!missed.length) return null;
+  const frozen = closedDays.filter((day) => day.status === 'frozen');
+  if (!missed.length && !frozen.length) return null;
+
+  const label = (days: typeof closedDays) =>
+    days.length === 1 ? formatDate(days[0].date) : `${days.length} days`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-start gap-3 rounded-xl border border-bad/30 bg-bad/[0.07] px-4 py-3"
-      role="status"
-    >
-      <AlertTriangle className="mt-0.5 size-4 shrink-0 text-bad" />
-      <p className="text-sm text-ink-muted">
-        <span className="font-medium text-ink">
-          {missed.length === 1 ? formatDate(missed[0].date) : `${missed.length} days`}
-        </span>{' '}
-        ended short of the target and {missed.length === 1 ? 'was' : 'were'} marked red. Those problems went back
-        into the mix and will resurface on a future day.
-      </p>
+    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="space-y-2" role="status">
+      {frozen.length > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-accent/30 bg-accent/[0.07] px-4 py-3">
+          <Snowflake className="mt-0.5 size-4 shrink-0 text-accent" />
+          <p className="text-sm text-ink-muted">
+            <span className="font-medium text-ink">{label(frozen)}</span> came up short, so a streak freeze was
+            spent to cover it. Your streak is intact.
+          </p>
+        </div>
+      )}
+
+      {missed.length > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-bad/30 bg-bad/[0.07] px-4 py-3">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-bad" />
+          <p className="text-sm text-ink-muted">
+            <span className="font-medium text-ink">{label(missed)}</span> ended short of the target and{' '}
+            {missed.length === 1 ? 'was' : 'were'} marked red. Those problems went back into the mix and will
+            resurface on a future day.
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 }

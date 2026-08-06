@@ -11,8 +11,14 @@ export function Settings() {
 
   const [name, setName] = useState(user?.name ?? '');
   const [target, setTarget] = useState(enrollment?.daily_target ?? 5);
-  const [saved, setSaved] = useState<'profile' | 'target' | null>(null);
+  const [saved, setSaved] = useState<'profile' | 'target' | 'leaderboard' | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const saveVisibility = async (showOnLeaderboard: boolean) => {
+    const { user: updated } = await api.updateProfile({ showOnLeaderboard });
+    setUser(updated);
+    setSaved('leaderboard');
+  };
 
   const saveProfile = async () => {
     setSaving(true);
@@ -51,6 +57,28 @@ export function Settings() {
             {saved === 'profile' && <span className="text-xs text-good">Saved</span>}
           </div>
         </div>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Leaderboard"
+          hint="Your name, streak and solved count appear on the public board."
+        />
+        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-line bg-surface/50 px-4 py-3">
+          <span className="text-sm text-ink-muted">
+            Show me on the leaderboard
+            <span className="mt-0.5 block text-xs text-ink-dim">
+              Turn this off and you drop off the board — you still see your own standing.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={user?.showOnLeaderboard ?? true}
+            onChange={(event) => saveVisibility(event.target.checked)}
+            className="size-5 shrink-0 accent-[var(--color-brand)]"
+          />
+        </label>
+        {saved === 'leaderboard' && <p className="mt-2 text-xs text-good">Saved</p>}
       </Card>
 
       <Card>

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Target, Trophy, RotateCcw } from 'lucide-react';
+import { Flame, Target, Trophy, Snowflake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Overview } from '@/lib/types';
 
@@ -69,10 +69,15 @@ export function StatTiles({ overview }: { overview: Overview }) {
       />
       <Tile
         index={3}
-        icon={<RotateCcw className="size-4" />}
-        label="In the mix"
-        value={totals.backlog}
-        sub="Unsolved, will return"
+        icon={<Snowflake className="size-4" />}
+        accent="text-accent"
+        label="Freezes"
+        value={streak.freezes.available}
+        sub={
+          streak.freezes.available > 0
+            ? `${totals.backlog} problems in the mix`
+            : `Next at ${streak.freezes.nextAt} green days`
+        }
       />
     </div>
   );

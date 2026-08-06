@@ -89,9 +89,15 @@ export function Heatmap({ cells, target }: { cells: HeatCell[]; target: number }
                           width: CELL,
                           height: CELL,
                           background: heatStep(cell.count, cell.target ?? target),
-                          // Only red days carry a ring — a green day is already
-                          // the deepest fill, so ringing it would double-encode.
-                          boxShadow: cell.status === 'missed' ? `0 0 0 1.5px ${STATUS.missed}99` : undefined,
+                          // A green day is already the deepest fill, so only the
+                          // exceptions carry a ring — red for a missed day, blue
+                          // for one a freeze covered.
+                          boxShadow:
+                            cell.status === 'missed'
+                              ? `0 0 0 1.5px ${STATUS.missed}99`
+                              : cell.status === 'frozen'
+                                ? `0 0 0 1.5px ${STATUS.frozen}`
+                                : undefined,
                         }}
                       />
                     ) : (
@@ -134,6 +140,7 @@ export function Heatmap({ cells, target }: { cells: HeatCell[]; target: number }
 
 function describe(cell: HeatCell) {
   if (cell.status === 'complete') return 'target met';
+  if (cell.status === 'frozen') return 'covered by a streak freeze';
   if (cell.status === 'missed') return 'missed — problems recycled';
   if (cell.status === 'active') return 'in progress';
   return 'no challenge';
@@ -152,6 +159,13 @@ function Legend() {
           style={{ background: RAMP[0], boxShadow: `0 0 0 1.5px ${STATUS.missed}99` }}
         />
         Red day
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <span
+          className="size-2.5 rounded-[3px]"
+          style={{ background: '#191922', boxShadow: `0 0 0 1.5px ${STATUS.frozen}` }}
+        />
+        Frozen
       </span>
     </div>
   );

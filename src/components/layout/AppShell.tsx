@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ListChecks, Settings, LogOut, Flame } from 'lucide-react';
+import { LayoutDashboard, ListChecks, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
@@ -8,8 +8,13 @@ import { Logo } from './Logo';
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/problems', label: 'Problems', icon: ListChecks },
+  { to: '/recap', label: 'Recap', icon: Share2 },
+  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
+
+/** The mobile bar has room for four; settings lives in the header there. */
+const MOBILE_NAV = NAV.filter((item) => item.to !== '/settings');
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -67,6 +72,17 @@ export function AppShell() {
             <p className="mt-1.5 text-[11px] text-ink-dim">
               {today.solvedCount}/{today.target} solved today
             </p>
+
+            {today.streak.freezes.available > 0 && (
+              <p
+                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-accent/25 bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent"
+                title={`A freeze is spent automatically if you fall short of the target. Next one at ${today.streak.freezes.nextAt} green days.`}
+              >
+                <Snowflake className="size-3" />
+                {today.streak.freezes.available} freeze
+                {today.streak.freezes.available === 1 ? '' : 's'} banked
+              </p>
+            )}
           </div>
         )}
 
@@ -110,8 +126,8 @@ export function AppShell() {
       </div>
 
       {/* ---- bottom nav (mobile) ------------------------------------------ */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t border-line bg-surface/95 backdrop-blur-xl lg:hidden">
-        {NAV.map(({ to, label, icon: Icon }) => (
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 backdrop-blur-xl lg:hidden">
+        {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

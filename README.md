@@ -9,6 +9,10 @@ topic. Clear all five and the day goes green. Fall short and it turns **red**: t
 you skipped drop back into the pool and resurface later. Solve more than five and the extras
 count as bonus.
 
+Clear the day and you choose how to keep going: another dealt set on the same one-per-topic
+rule, or the open library. Every 10 green days banks a **streak freeze**, spent automatically
+so one skipped day cannot wipe a long run.
+
 API lives in [Optimus-Code](https://github.com/ayan-mn18/Optimus-Code).
 
 ## Stack
@@ -48,6 +52,8 @@ npm run typecheck  # types only
 | `/onboarding` | Pick a daily target (3 / 5 / 8) and start the challenge                       |
 | `/dashboard`  | Today's set, day ring, streak, consistency heatmap, topic mastery, difficulty |
 | `/problems`   | All 544 problems — filter by topic, difficulty, solve state, or title         |
+| `/recap`      | Weekly recap card, downloadable as a PNG or shared via the OS share sheet     |
+| `/leaderboard`| Streak / solved / green-day standings, with your own rank pinned              |
 | `/settings`   | Profile, timezone, daily target                                              |
 
 ## The landing page
@@ -60,6 +66,14 @@ costs nothing in bundle size, and the whole thing flattens to a static layout un
 
 The waitlist form posts to `POST /api/waitlist` and shows the live signup count. Joining
 twice is a success state, not an error.
+
+## The recap card
+
+The card is **pure SVG** — no `foreignObject`, no web fonts, no html-to-image dependency.
+That is what makes it exportable: the browser serialises the SVG, loads it as an image, draws
+it onto a canvas at 2× and hands back a PNG (2160×2700, sized for a story or a post).
+`navigator.share` is offered when the browser supports sharing files, with download as the
+fallback everywhere else.
 
 ## Design notes
 
@@ -85,12 +99,13 @@ src/
   components/
     charts/      DayRing, Heatmap, TopicMastery, DifficultySplit, palette
     landing/     HeroScene, WaitlistForm, TiltCard, useTilt
+    recap/       RecapCard (SVG), exportCard (SVG → PNG)
     dashboard/   TodayPanel, ProblemRow, StatTiles
     layout/      AppShell, Logo
     ui/          Button, Card, Field, badges, skeletons
   hooks/         TanStack Query hooks + optimistic solve toggle
   lib/           api client (token refresh), types, helpers
-  pages/         Landing, AuthPage, Onboarding, Dashboard, Problems, Settings
+  pages/         Landing, AuthPage, Onboarding, Dashboard, Problems, Recap, Leaderboard, Settings
   store/         auth context
 ```
 

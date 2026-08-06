@@ -1,5 +1,12 @@
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
-export type DayStatus = 'active' | 'complete' | 'missed';
+export type DayStatus = 'active' | 'complete' | 'missed' | 'frozen';
+
+export interface FreezeBalance {
+  earned: number;
+  used: number;
+  available: number;
+  nextAt: number;
+}
 
 export interface User {
   id: string;
@@ -7,6 +14,7 @@ export interface User {
   email: string;
   timezone: string;
   avatarSeed: string;
+  showOnLeaderboard: boolean;
   createdAt: string;
 }
 
@@ -40,6 +48,8 @@ export interface Streak {
   longest: number;
   greenDays: number;
   redDays: number;
+  frozenDays: number;
+  freezes: FreezeBalance;
 }
 
 export interface TodayResponse {
@@ -82,6 +92,58 @@ export interface Overview {
   difficulty: { difficulty: Difficulty; total: number; solved: number; percent: number }[];
   heatmap: HeatCell[];
   recentDays: { log_date: string; status: DayStatus; solved_count: number; bonus_count: number; required_count: number }[];
+}
+
+export interface LeaderboardEntry {
+  rank: number | null;
+  userId: string;
+  name: string;
+  avatarSeed: string;
+  streak: number;
+  longestStreak: number;
+  greenDays: number;
+  solved: number;
+  joinedOn: string;
+}
+
+export interface Leaderboard {
+  metric: 'streak' | 'solved' | 'consistency';
+  total: number;
+  entries: LeaderboardEntry[];
+  me: LeaderboardEntry & { onBoard: boolean; inTop: boolean };
+}
+
+export interface RecapDay {
+  date: string;
+  label: string;
+  solved: number;
+  target: number | null;
+  status: DayStatus | 'upcoming' | 'none';
+  isToday: boolean;
+}
+
+export interface Recap {
+  weekStart: string;
+  weekEnd: string;
+  weeksAgo: number;
+  isCurrentWeek: boolean;
+  daysElapsed: number;
+  user: { name: string; avatarSeed: string };
+  totals: {
+    solved: number;
+    bonus: number;
+    greenDays: number;
+    redDays: number;
+    frozenDays: number;
+    topicsTouched: number;
+  };
+  change: { solved: number; previousSolved: number; percent: number | null };
+  days: RecapDay[];
+  bestDay: RecapDay | null;
+  topics: { topic: string; count: number }[];
+  difficulty: Record<Difficulty, number>;
+  streak: Streak;
+  headline: string;
 }
 
 export interface Session {

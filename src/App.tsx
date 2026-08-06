@@ -5,6 +5,8 @@ import { Landing } from '@/pages/Landing';
 import { Onboarding } from '@/pages/Onboarding';
 import { Dashboard } from '@/pages/Dashboard';
 import { Problems } from '@/pages/Problems';
+import { Recap } from '@/pages/Recap';
+import { Leaderboard } from '@/pages/Leaderboard';
 import { Settings } from '@/pages/Settings';
 import { Spinner } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
@@ -47,6 +49,8 @@ export default function App() {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/problems" element={<Problems />} />
+        <Route path="/recap" element={<Recap />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 

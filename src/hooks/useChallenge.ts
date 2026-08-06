@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/store/auth';
-import type { Problem, Streak, TodayResponse } from '@/lib/types';
+import type { Leaderboard, Problem, Streak, TodayResponse } from '@/lib/types';
 
 interface ToggleVars {
   problem: Problem;
@@ -32,6 +32,24 @@ export function useOverview() {
     queryFn: api.overview,
     enabled: Boolean(enrollment),
     staleTime: 30_000,
+  });
+}
+
+export function useRecap(weeksAgo: number) {
+  const { enrollment } = useAuth();
+  return useQuery({
+    queryKey: ['recap', weeksAgo],
+    queryFn: () => api.recap(weeksAgo),
+    enabled: Boolean(enrollment),
+    staleTime: 60_000,
+  });
+}
+
+export function useLeaderboard(metric: Leaderboard['metric']) {
+  return useQuery({
+    queryKey: ['leaderboard', metric],
+    queryFn: () => api.leaderboard(metric),
+    staleTime: 60_000,
   });
 }
 
