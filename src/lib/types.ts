@@ -31,6 +31,7 @@ export interface Problem {
   solved?: boolean;
   solvedOn?: string | null;
   position?: number;
+  round?: number;
   carriedOver?: boolean;
 }
 
@@ -51,6 +52,9 @@ export interface TodayResponse {
   isComplete: boolean;
   closedDays: { date: string; status: DayStatus; solved: number }[];
   problems: Problem[];
+  /** Extra sets dealt after the target was met — never counted toward it. */
+  extraSets: { round: number; problems: Problem[] }[];
+  canExtend: boolean;
   bonusProblems: Problem[];
   streak: Streak;
 }

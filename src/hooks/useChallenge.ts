@@ -64,13 +64,20 @@ export function useToggleSolve() {
 
       queryClient.setQueryData<TodayResponse>(queryKeys.today, (current) => {
         if (!current) return current;
-        const problems = current.problems.map((item) =>
-          item.id === problem.id ? { ...item, solved } : item,
-        );
+
+        const patch = (item: Problem) => (item.id === problem.id ? { ...item, solved } : item);
+
+        // Only the target set moves the day's counter; extra sets are bonus,
+        // but their checkboxes still need to feel instant.
+        const problems = current.problems.map(patch);
+        const extraSets = current.extraSets.map((set) => ({ ...set, problems: set.problems.map(patch) }));
         const solvedCount = problems.filter((item) => item.solved).length;
+
         return {
           ...current,
           problems,
+          extraSets,
+          bonusProblems: current.bonusProblems.map(patch),
           solvedCount,
           isComplete: solvedCount >= current.target,
           status: solvedCount >= current.target ? 'complete' : current.status,
@@ -88,6 +95,19 @@ export function useToggleSolve() {
       queryClient.invalidateQueries({ queryKey: queryKeys.today });
       queryClient.invalidateQueries({ queryKey: queryKeys.overview });
       queryClient.invalidateQueries({ queryKey: ['problems'] });
+    },
+  });
+}
+
+/** Deals another set for today once the target is met. */
+export function useExtendToday() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: api.extendToday,
+    onSuccess: (today) => {
+      queryClient.setQueryData(queryKeys.today, today);
+      queryClient.invalidateQueries({ queryKey: queryKeys.overview });
     },
   });
 }

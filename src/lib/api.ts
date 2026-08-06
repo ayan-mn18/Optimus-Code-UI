@@ -110,6 +110,8 @@ export const api = {
 
   today: () => request<TodayResponse>('/api/challenge/today'),
 
+  extendToday: () => request<TodayResponse>('/api/challenge/extend', { method: 'POST' }),
+
   solve: (problemId: string, data: { timeSpentMin?: number | null; notes?: string | null } = {}) =>
     request<{ problem: Problem; isBonus: boolean; day: TodayResponse | null; streak: Streak }>(
       `/api/challenge/solve/${problemId}`,

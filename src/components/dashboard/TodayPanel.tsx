@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Sparkles, PartyPopper, AlertTriangle } from 'lucide-react';
+import { Sparkles, PartyPopper, AlertTriangle, Layers, Library } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
-import { Card } from '@/components/ui/primitives';
+import { Button, Card } from '@/components/ui/primitives';
 import { formatDate, pluralize } from '@/lib/utils';
-import { useToggleSolve } from '@/hooks/useChallenge';
+import { useToggleSolve, useExtendToday } from '@/hooks/useChallenge';
 import type { Problem, TodayResponse } from '@/lib/types';
 
 export function TodayPanel({ today }: { today: TodayResponse }) {
@@ -71,21 +71,37 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="mt-4 flex items-center gap-3 rounded-xl border border-good/25 bg-good/[0.06] px-4 py-3">
-                  <PartyPopper className="size-5 shrink-0 text-good" />
-                  <p className="text-sm text-ink-muted">
-                    Target met. Head to{' '}
-                    <Link to="/problems" className="text-brand-pale underline underline-offset-2">
-                      all problems
-                    </Link>{' '}
-                    to keep going — extras count as bonus.
-                  </p>
-                </div>
+                <KeepGoing today={today} />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </Card>
+
+      {today.extraSets.map((set) => (
+        <Card key={set.round}>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              <Layers className="size-4 text-brand" />
+              Extra set {set.round - 1}
+            </h2>
+            <p className="text-xs text-ink-dim">
+              {set.problems.filter((problem) => problem.solved).length}/{set.problems.length} solved · bonus
+            </p>
+          </div>
+          <ul className="space-y-2">
+            {set.problems.map((problem, index) => (
+              <ProblemRow
+                key={problem.id}
+                problem={problem}
+                index={index}
+                onToggle={onToggle}
+                pending={toggle.isPending && toggle.variables?.problem.id === problem.id}
+              />
+            ))}
+          </ul>
+        </Card>
+      ))}
 
       {today.bonusProblems.length > 0 && (
         <Card>
@@ -100,6 +116,61 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
           </ul>
         </Card>
       )}
+    </div>
+  );
+}
+
+/**
+ * Shown once the target is met. Two equal ways to keep going — another dealt
+ * set, or the open library — rather than only pointing at the library.
+ */
+function KeepGoing({ today }: { today: TodayResponse }) {
+  const extend = useExtendToday();
+  const allSolved = today.extraSets.every((set) => set.problems.every((problem) => problem.solved));
+
+  return (
+    <div className="mt-4 rounded-xl border border-good/25 bg-good/[0.05] p-4">
+      <div className="flex items-center gap-3">
+        <PartyPopper className="size-5 shrink-0 text-good" />
+        <p className="text-sm text-ink-muted">
+          <span className="font-medium text-ink">Target met.</span> The streak is safe — anything from here is
+          bonus.
+        </p>
+      </div>
+
+      {extend.isError && (
+        <p role="alert" className="mt-3 text-xs text-bad">
+          {extend.error.message}
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <Button
+          onClick={() => extend.mutate()}
+          loading={extend.isPending}
+          disabled={!today.canExtend || !allSolved}
+          icon={<Sparkles className="size-4" />}
+          className="flex-1"
+        >
+          Deal another {today.target}
+        </Button>
+
+        <Link
+          to="/problems"
+          className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-line-strong bg-elevated/60 px-4 text-sm font-medium transition-colors hover:border-brand/50 hover:bg-elevated"
+        >
+          <Library className="size-4" />
+          Pick your own
+        </Link>
+      </div>
+
+      <p className="mt-2.5 text-[11px] text-ink-dim">
+        {!today.canExtend
+          ? 'That is as many sets as one day gets — the library is still open.'
+          : !allSolved
+            ? 'Finish the current extra set before asking for another.'
+            : 'A new set keeps the one-per-topic rule. The library lets you go wherever you want.'}
+      </p>
     </div>
   );
 }
