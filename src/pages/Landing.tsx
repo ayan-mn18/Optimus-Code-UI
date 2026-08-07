@@ -7,6 +7,7 @@ import { WaitlistForm } from '@/components/landing/WaitlistForm';
 import { TiltCard } from '@/components/landing/TiltCard';
 import { useTilt } from '@/components/landing/useTilt';
 import { useAuth } from '@/store/auth';
+import { SIGNUP_ENABLED } from '@/lib/features';
 
 const STATS = [
   { value: '544', label: 'problems' },
@@ -75,12 +76,14 @@ export function Landing() {
           >
             Sign in
           </Link>
-          <Link
-            to="/signup"
-            className="rounded-xl border border-line-strong bg-elevated/60 px-4 py-2 text-sm transition-colors hover:border-brand/50"
-          >
-            Get started
-          </Link>
+          {SIGNUP_ENABLED && (
+            <Link
+              to="/signup"
+              className="rounded-xl border border-line-strong bg-elevated/60 px-4 py-2 text-sm transition-colors hover:border-brand/50"
+            >
+              Get started
+            </Link>
+          )}
         </nav>
       </header>
 
@@ -117,14 +120,16 @@ export function Landing() {
             <WaitlistForm />
           </div>
 
-          <div className="mt-8 flex items-center gap-3 text-sm">
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-1.5 text-brand-pale underline-offset-4 hover:underline"
-            >
-              Or start solving now <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
+          {SIGNUP_ENABLED && (
+            <div className="mt-8 flex items-center gap-3 text-sm">
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-1.5 text-brand-pale underline-offset-4 hover:underline"
+              >
+                Or start solving now <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+          )}
         </motion.div>
 
         <HeroScene

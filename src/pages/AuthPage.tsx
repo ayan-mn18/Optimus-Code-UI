@@ -6,6 +6,7 @@ import { Button, Field } from '@/components/ui/primitives';
 import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/store/auth';
 import { ApiError } from '@/lib/api';
+import { SIGNUP_ENABLED } from '@/lib/features';
 
 const HIGHLIGHTS = [
   { icon: Layers, title: '544 problems, 19 topics', body: 'The Striver SDE and A2Z sheets, with links to LeetCode and the walkthrough video.' },
@@ -25,6 +26,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [submitting, setSubmitting] = useState(false);
 
   if (user) return <Navigate to={(location.state as { from?: string })?.from ?? '/dashboard'} replace />;
+
+  if (isSignup && !SIGNUP_ENABLED) return <Navigate to="/" replace />;
 
   const set = (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement>) =>
     setValues((current) => ({ ...current, [key]: event.target.value }));
@@ -52,38 +55,52 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       {/* ---- pitch ---------------------------------------------------------- */}
-      <aside className="relative hidden overflow-hidden border-r border-line px-12 py-14 lg:flex lg:flex-col">
+      <aside className="relative hidden overflow-hidden border-r border-line px-14 py-12 lg:flex lg:flex-col xl:px-20">
         <div className="pointer-events-none absolute -left-32 top-10 size-[30rem] rounded-full bg-brand-strong/20 blur-[120px] animate-[float_9s_ease-in-out_infinite]" />
         <div className="pointer-events-none absolute -right-24 bottom-0 size-[26rem] rounded-full bg-accent/10 blur-[120px]" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.16]"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, #32323f 1px, transparent 1px), linear-gradient(to bottom, #32323f 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'linear-gradient(135deg, #000, transparent 72%)',
+            WebkitMaskImage: 'linear-gradient(135deg, #000, transparent 72%)',
+          }}
+        />
 
-        <Logo />
+        <div className="relative z-10">
+          <Logo />
+        </div>
 
-        <div className="relative mt-auto max-w-lg">
-          <h1 className="text-[42px] font-semibold leading-[1.08] tracking-tight">
+        <div className="relative z-10 my-auto max-w-xl py-16">
+          <p className="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-brand-pale">Built for consistency</p>
+          <h1 className="text-[clamp(2.6rem,3.2vw,3.5rem)] font-semibold leading-[1.05] tracking-tight">
             Show up every day.
             <br />
-            <span className="gradient-text">The sheet takes care of itself.</span>
+            <span className="gradient-text">The sheet handles itself.</span>
           </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-ink-muted">
+          <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
             Optimus Code hands you five problems each morning — one per topic — and keeps score. Clear them and
             the day goes green. Skip them and they come back.
           </p>
 
-          <ul className="mt-10 space-y-5">
+          <ul className="mt-10 grid gap-3">
             {HIGHLIGHTS.map(({ icon: Icon, title, body }, index) => (
               <motion.li
                 key={title}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15 + index * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex gap-3.5"
+                className="flex gap-4 rounded-xl border border-line bg-card/55 p-4 backdrop-blur-sm"
               >
-                <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg border border-line bg-card text-brand">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-line-strong bg-elevated text-brand">
                   <Icon className="size-4" />
                 </span>
                 <div>
                   <p className="text-sm font-medium text-ink">{title}</p>
-                  <p className="mt-0.5 text-[13px] leading-relaxed text-ink-dim">{body}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-dim">{body}</p>
                 </div>
               </motion.li>
             ))}
@@ -161,15 +178,17 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-ink-dim">
-            {isSignup ? 'Already have an account?' : 'New here?'}{' '}
-            <Link
-              to={isSignup ? '/login' : '/signup'}
-              className="font-medium text-brand-pale underline-offset-4 hover:underline"
-            >
-              {isSignup ? 'Sign in' : 'Create one'}
-            </Link>
-          </p>
+          {SIGNUP_ENABLED && (
+            <p className="mt-6 text-center text-sm text-ink-dim">
+              {isSignup ? 'Already have an account?' : 'New here?'}{' '}
+              <Link
+                to={isSignup ? '/login' : '/signup'}
+                className="font-medium text-brand-pale underline-offset-4 hover:underline"
+              >
+                {isSignup ? 'Sign in' : 'Create one'}
+              </Link>
+            </p>
+          )}
         </motion.div>
       </main>
     </div>
