@@ -3,6 +3,7 @@ import type {
   Leaderboard,
   Overview,
   Problem,
+  ProblemListResponse,
   Recap,
   Session,
   Streak,
@@ -133,16 +134,8 @@ export const api = {
 
   overview: () => request<Overview>('/api/dashboard/overview'),
 
-  problems: (params: Record<string, string | undefined> = {}) => {
-    const query = new URLSearchParams(
-      Object.entries(params).filter(([, value]) => value && value !== 'all') as [string, string][],
-    );
-    return request<{ items: Problem[]; page: number; pageSize: number; total: number }>(
-      `/api/dashboard/problems?${query}`,
-    );
-  },
+  problems: () => request<ProblemListResponse>('/api/dashboard/problems'),
 
-  topics: () => request<{ topics: { topic: string; total: number }[] }>('/api/dashboard/topics'),
 
   recap: (weeksAgo = 0) => request<Recap>(`/api/dashboard/recap?weeksAgo=${weeksAgo}`),
 

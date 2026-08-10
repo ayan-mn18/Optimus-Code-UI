@@ -1,18 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/store/auth';
-import type { Leaderboard, Problem, Streak, TodayResponse } from '@/lib/types';
+import type { Leaderboard, Problem, ProblemListResponse, Streak, TodayResponse } from '@/lib/types';
 
 interface ToggleVars {
   problem: Problem;
   solved: boolean;
 }
 
+interface ToggleContext {
+  previousToday?: TodayResponse;
+  previousProblems?: ProblemListResponse;
+}
+
 export const queryKeys = {
   today: ['today'] as const,
   overview: ['overview'] as const,
-  problems: (filters: Record<string, string>) => ['problems', filters] as const,
-  topics: ['topics'] as const,
+  problems: ['problems'] as const,
 };
 
 export function useToday() {
@@ -53,15 +57,12 @@ export function useLeaderboard(metric: Leaderboard['metric']) {
   });
 }
 
-export function useTopics() {
-  return useQuery({ queryKey: queryKeys.topics, queryFn: api.topics, staleTime: 60 * 60_000 });
-}
 
-export function useProblems(filters: Record<string, string>) {
+export function useProblems() {
   return useQuery({
-    queryKey: queryKeys.problems(filters),
-    queryFn: () => api.problems(filters),
-    staleTime: 30_000,
+    queryKey: queryKeys.problems,
+    queryFn: api.problems,
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -72,18 +73,21 @@ export function useProblems(filters: Record<string, string>) {
 export function useToggleSolve() {
   const queryClient = useQueryClient();
 
-  return useMutation<{ streak: Streak }, Error, ToggleVars, { previous?: TodayResponse }>({
+  return useMutation<{ streak: Streak }, Error, ToggleVars, ToggleContext>({
     mutationFn: async ({ problem, solved }) =>
       solved ? api.solve(problem.id) : api.unsolve(problem.id),
 
     onMutate: async ({ problem, solved }) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.today });
-      const previous = queryClient.getQueryData<TodayResponse>(queryKeys.today);
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: queryKeys.today }),
+        queryClient.cancelQueries({ queryKey: queryKeys.problems }),
+      ]);
+      const previousToday = queryClient.getQueryData<TodayResponse>(queryKeys.today);
+      const previousProblems = queryClient.getQueryData<ProblemListResponse>(queryKeys.problems);
+      const patch = (item: Problem) => (item.id === problem.id ? { ...item, solved } : item);
 
       queryClient.setQueryData<TodayResponse>(queryKeys.today, (current) => {
         if (!current) return current;
-
-        const patch = (item: Problem) => (item.id === problem.id ? { ...item, solved } : item);
 
         // Only the target set moves the day's counter; extra sets are bonus,
         // but their checkboxes still need to feel instant.
@@ -101,18 +105,22 @@ export function useToggleSolve() {
           status: solvedCount >= current.target ? 'complete' : current.status,
         };
       });
+      queryClient.setQueryData<ProblemListResponse>(queryKeys.problems, (current) =>
+        current ? { ...current, items: current.items.map(patch) } : current,
+      );
 
-      return { previous };
+      return { previousToday, previousProblems };
     },
 
     onError: (_error, _variables, context) => {
-      if (context?.previous) queryClient.setQueryData(queryKeys.today, context.previous);
+      if (context?.previousToday) queryClient.setQueryData(queryKeys.today, context.previousToday);
+      if (context?.previousProblems) queryClient.setQueryData(queryKeys.problems, context.previousProblems);
     },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.today });
       queryClient.invalidateQueries({ queryKey: queryKeys.overview });
-      queryClient.invalidateQueries({ queryKey: ['problems'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.problems });
     },
   });
 }

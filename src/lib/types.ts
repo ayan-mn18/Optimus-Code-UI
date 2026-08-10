@@ -43,6 +43,11 @@ export interface Problem {
   carriedOver?: boolean;
 }
 
+export interface ProblemListResponse {
+  items: Problem[];
+  total: number;
+}
+
 export interface Streak {
   current: number;
   longest: number;
