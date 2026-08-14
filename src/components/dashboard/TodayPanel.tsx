@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Sparkles, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
+import { CheckCircle2, Sparkles, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
 import { Button, Card } from '@/components/ui/primitives';
@@ -38,7 +38,7 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
             <p className="mt-2 max-w-md text-sm text-ink-muted">
               {today.isComplete
                 ? 'Everything past this point is bonus — the streak is already safe.'
-                : 'Five problems, five different topics. Clear them all before midnight to keep the day green.'}
+                : `${pluralize(today.target, 'problem')}, each from a different topic. Clear them before midnight to keep the day green.`}
             </p>
 
             {today.bonusCount > 0 && (
@@ -78,30 +78,13 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
         </div>
       </Card>
 
-      {today.extraSets.map((set) => (
-        <Card key={set.round}>
-          <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Layers className="size-4 text-brand" />
-              Extra set {set.round - 1}
-            </h2>
-            <p className="text-xs text-ink-dim">
-              {set.problems.filter((problem) => problem.solved).length}/{set.problems.length} solved · bonus
-            </p>
-          </div>
-          <ul className="space-y-2">
-            {set.problems.map((problem, index) => (
-              <ProblemRow
-                key={problem.id}
-                problem={problem}
-                index={index}
-                onToggle={onToggle}
-                pending={toggle.isPending && toggle.variables?.problem.id === problem.id}
-              />
-            ))}
-          </ul>
-        </Card>
-      ))}
+      {today.extraSets.length > 0 && (
+        <ExtraSetsPanel
+          sets={today.extraSets}
+          onToggle={onToggle}
+          pendingProblemId={toggle.isPending ? toggle.variables?.problem.id : undefined}
+        />
+      )}
 
       {today.bonusProblems.length > 0 && (
         <Card>
@@ -119,6 +102,100 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
     </div>
   );
 }
+function ExtraSetsPanel({
+  sets,
+  onToggle,
+  pendingProblemId,
+}: {
+  sets: TodayResponse['extraSets'];
+  onToggle: (problem: Problem, solved: boolean) => void;
+  pendingProblemId?: string;
+}) {
+  const solvedTotal = sets.reduce(
+    (total, set) => total + set.problems.filter((problem) => problem.solved).length,
+    0,
+  );
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="flex flex-col gap-3 border-b border-line bg-linear-to-r from-brand-strong/10 to-transparent p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand-pale">
+            <Layers className="size-5" />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold">Extra sets</h2>
+            <p className="mt-0.5 text-xs text-ink-dim">Newest set first. Scroll here for earlier sets.</p>
+          </div>
+        </div>
+        <p className="self-start rounded-lg border border-line bg-elevated/70 px-2.5 py-1 text-xs text-ink-muted sm:self-auto">
+          {pluralize(sets.length, 'set')} · {pluralize(solvedTotal, 'bonus solve')}
+        </p>
+      </div>
+
+      <div
+        className="max-h-[38rem] overflow-y-auto overscroll-contain p-3 sm:p-4"
+        tabIndex={0}
+        aria-label="Extra sets, newest first"
+      >
+        <div className="space-y-3">
+          {sets.map((set, setIndex) => {
+            const solved = set.problems.filter((problem) => problem.solved).length;
+            const complete = solved === set.problems.length;
+            const progress = set.problems.length ? (solved / set.problems.length) * 100 : 0;
+
+            return (
+              <motion.section
+                key={set.round}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl border border-line bg-surface/55 p-3 sm:p-4"
+                aria-labelledby={`extra-set-${set.round}`}
+              >
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <h3 id={`extra-set-${set.round}`} className="text-sm font-semibold">
+                      Extra set {set.round - 1}
+                    </h3>
+                    {setIndex === 0 && (
+                      <span className="rounded-md border border-brand/30 bg-brand/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand-pale">
+                        Latest
+                      </span>
+                    )}
+                    {complete && <CheckCircle2 className="size-4 text-good" aria-label="Complete" />}
+                  </div>
+                  <p className="text-xs tabular-nums text-ink-dim">
+                    {solved}/{set.problems.length} solved · bonus
+                  </p>
+                </div>
+
+                <div className="mb-3 h-1 overflow-hidden rounded-full bg-line" aria-hidden>
+                  <div
+                    className="h-full rounded-full bg-linear-to-r from-brand-strong to-accent transition-[width] duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                <ul className="space-y-2">
+                  {set.problems.map((problem, index) => (
+                    <ProblemRow
+                      key={problem.id}
+                      problem={problem}
+                      index={index}
+                      onToggle={onToggle}
+                      pending={pendingProblemId === problem.id}
+                    />
+                  ))}
+                </ul>
+              </motion.section>
+            );
+          })}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 
 /**
  * Shown once the target is met. Two equal ways to keep going — another dealt
@@ -126,7 +203,8 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
  */
 function KeepGoing({ today }: { today: TodayResponse }) {
   const extend = useExtendToday();
-  const allSolved = today.extraSets.every((set) => set.problems.every((problem) => problem.solved));
+  const latestSet = today.extraSets[0];
+  const latestSetComplete = !latestSet || latestSet.problems.every((problem) => problem.solved);
 
   return (
     <div className="mt-4 rounded-xl border border-good/25 bg-good/[0.05] p-4">
@@ -148,7 +226,7 @@ function KeepGoing({ today }: { today: TodayResponse }) {
         <Button
           onClick={() => extend.mutate()}
           loading={extend.isPending}
-          disabled={!today.canExtend || !allSolved}
+          disabled={!today.canExtend || !latestSetComplete}
           icon={<Sparkles className="size-4" />}
           className="flex-1"
         >
@@ -166,10 +244,12 @@ function KeepGoing({ today }: { today: TodayResponse }) {
 
       <p className="mt-2.5 text-[11px] text-ink-dim">
         {!today.canExtend
-          ? 'That is as many sets as one day gets — the library is still open.'
-          : !allSolved
-            ? 'Finish the current extra set before asking for another.'
-            : 'A new set keeps the one-per-topic rule. The library lets you go wherever you want.'}
+          ? 'No unsolved problems remain to deal.'
+          : !latestSetComplete
+            ? `Finish extra set ${latestSet.round - 1} before asking for another.`
+            : today.extraSets.length
+              ? 'Current set complete. Your next set will appear first below.'
+              : 'A new set keeps the one-per-topic rule. The library lets you choose freely.'}
       </p>
     </div>
   );

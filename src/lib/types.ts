@@ -67,7 +67,7 @@ export interface TodayResponse {
   isComplete: boolean;
   closedDays: { date: string; status: DayStatus; solved: number }[];
   problems: Problem[];
-  /** Extra sets dealt after the target was met — never counted toward it. */
+  /** Extra sets dealt after the target was met, newest first and never counted toward it. */
   extraSets: { round: number; problems: Problem[] }[];
   canExtend: boolean;
   bonusProblems: Problem[];
