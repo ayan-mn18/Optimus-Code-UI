@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/store/auth';
+import { milestoneQueryKey } from '@/hooks/useMilestone';
 import type { Leaderboard, Problem, ProblemListResponse, Streak, TodayResponse } from '@/lib/types';
 
 interface ToggleVars {
@@ -121,6 +122,7 @@ export function useToggleSolve() {
       queryClient.invalidateQueries({ queryKey: queryKeys.today });
       queryClient.invalidateQueries({ queryKey: queryKeys.overview });
       queryClient.invalidateQueries({ queryKey: queryKeys.problems });
+      queryClient.invalidateQueries({ queryKey: milestoneQueryKey });
     },
   });
 }

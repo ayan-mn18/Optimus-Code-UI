@@ -151,6 +151,38 @@ export interface Recap {
   headline: string;
 }
 
+export interface MilestoneRecap {
+  milestone: number;
+  nextMilestone: number;
+  achievedOn: string;
+  user: { name: string; avatarSeed: string };
+  headline: string;
+  totals: {
+    solved: number;
+    activeDays: number;
+    bonus: number;
+    topicsTouched: number;
+    trackedMinutes: number;
+  };
+  topTopics: { topic: string; count: number }[];
+  difficulty: Record<Difficulty, number>;
+  rhythm: {
+    firstSolvedOn: string;
+    bestDate: string | null;
+    bestDateCount: number;
+    strongestDay: string | null;
+    strongestDayCount: number;
+    averagePerActiveDay: number;
+    weeklyPace: number;
+  };
+  streak: Pick<Streak, 'current' | 'longest' | 'greenDays'>;
+  recommendation: {
+    daily: number;
+    remaining: number;
+    projectedDays: number;
+  };
+}
+
 export interface Session {
   user: User;
   enrollment: Enrollment | null;

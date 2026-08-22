@@ -1,6 +1,7 @@
 import type {
   Enrollment,
   Leaderboard,
+  MilestoneRecap,
   Overview,
   Problem,
   ProblemListResponse,
@@ -138,6 +139,11 @@ export const api = {
 
 
   recap: (weeksAgo = 0) => request<Recap>(`/api/dashboard/recap?weeksAgo=${weeksAgo}`),
+  pendingMilestone: () => request<{ milestone: MilestoneRecap | null }>('/api/milestones/pending'),
+
+  markMilestoneViewed: (milestone: number) =>
+    request<void>(`/api/milestones/${milestone}/viewed`, { method: 'POST' }),
+
 
   leaderboard: (metric: Leaderboard['metric'] = 'streak') =>
     request<Leaderboard>(`/api/leaderboard?metric=${metric}`),

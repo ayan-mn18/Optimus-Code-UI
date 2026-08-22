@@ -3,6 +3,8 @@ import { LayoutDashboard, ListChecks, Settings, LogOut, Flame, Trophy, Share2, S
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
+import { useMarkMilestoneViewed, usePendingMilestone } from '@/hooks/useMilestone';
+import { MilestoneModal } from '@/components/milestone/MilestoneModal';
 import { Logo } from './Logo';
 
 const NAV = [
@@ -20,6 +22,8 @@ export function AppShell() {
   const { user, logout } = useAuth();
   const { data: today } = useToday();
   const navigate = useNavigate();
+  const { data: milestone } = usePendingMilestone();
+  const markMilestoneViewed = useMarkMilestoneViewed();
 
   const signOut = async () => {
     await logout();
@@ -27,6 +31,13 @@ export function AppShell() {
   };
 
   return (
+    <>
+      {milestone && (
+        <MilestoneModal
+          recap={milestone}
+          onDismiss={() => markMilestoneViewed.mutateAsync(milestone.milestone)}
+        />
+      )}
     <div className="mx-auto flex min-h-dvh w-full max-w-[1400px]">
       {/* ---- sidebar (desktop) -------------------------------------------- */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line px-4 py-6 lg:flex">
@@ -144,6 +155,7 @@ export function AppShell() {
         ))}
       </nav>
     </div>
+    </>
   );
 }
 
