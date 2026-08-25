@@ -102,8 +102,6 @@ async function request<T>(path: string, init: RequestInit = {}, retry = true): P
 const body = (data: unknown) => ({ body: JSON.stringify(data) });
 
 export const api = {
-  signup: (data: { name: string; email: string; password: string; timezone: string }) =>
-    request<Session>('/api/auth/signup', { method: 'POST', ...body(data) }),
 
   login: (data: { email: string; password: string }) =>
     request<Session>('/api/auth/login', { method: 'POST', ...body(data) }),
@@ -151,8 +149,20 @@ export const api = {
   waitlistCount: () => request<{ count: number }>('/api/waitlist'),
 
   joinWaitlist: (data: { email: string; name?: string; referrer?: string }) =>
-    request<{ joined: boolean; alreadyJoined: boolean; count: number }>('/api/waitlist', {
+    request<{ joined: boolean; alreadyJoined: boolean; inviteSent: boolean; count: number }>('/api/waitlist', {
       method: 'POST',
       ...body(data),
+    }),
+
+  inspectInvite: (token: string) =>
+    request<{ email: string; expiresAt: string }>('/api/invites/inspect', {
+      method: 'POST',
+      ...body({ token }),
+    }),
+
+  acceptInvite: (token: string, data: { name: string; password: string; timezone: string }) =>
+    request<{ user: User }>('/api/invites/accept', {
+      method: 'POST',
+      ...body({ token, ...data }),
     }),
 };

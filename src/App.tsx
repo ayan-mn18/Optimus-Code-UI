@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { AuthPage } from '@/pages/AuthPage';
 import { Landing } from '@/pages/Landing';
+import { InvitePage } from '@/pages/InvitePage';
 import { Onboarding } from '@/pages/Onboarding';
 import { Dashboard } from '@/pages/Dashboard';
 import { Problems } from '@/pages/Problems';
@@ -28,8 +29,8 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<AuthPage mode="login" />} />
-      <Route path="/signup" element={<AuthPage mode="signup" />} />
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/invite" element={<InvitePage />} />
 
       <Route
         path="/onboarding"

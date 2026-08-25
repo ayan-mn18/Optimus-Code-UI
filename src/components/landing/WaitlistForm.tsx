@@ -8,6 +8,7 @@ export function WaitlistForm({ className, compact }: { className?: string; compa
   const [email, setEmail] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'joined' | 'already'>('idle');
   const [error, setError] = useState('');
+  const [inviteSent, setInviteSent] = useState(false);
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export function WaitlistForm({ className, compact }: { className?: string; compa
     try {
       const result = await api.joinWaitlist({ email, referrer: document.referrer || undefined });
       setCount(result.count);
+      setInviteSent(result.inviteSent);
       setState(result.alreadyJoined ? 'already' : 'joined');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not reach the server');
@@ -50,12 +52,15 @@ export function WaitlistForm({ className, compact }: { className?: string; compa
               <Check className="size-4" strokeWidth={3} />
             </span>
             <p className="text-sm text-ink-muted">
-              {state === 'already' ? (
-                <>You&rsquo;re already on the list — sit tight.</>
+              {inviteSent ? (
+                <>
+                  <span className="font-medium text-ink">Check your inbox.</span>{' '}
+                  {state === 'already' ? 'Your active invite is already there.' : 'Your secure account invite is ready.'}
+                </>
               ) : (
                 <>
-                  <span className="font-medium text-ink">You&rsquo;re in.</span> We&rsquo;ll email you the moment
-                  your seat opens.
+                  <span className="font-medium text-ink">You&rsquo;re on the list.</span> Your invite email is not
+                  available yet.
                 </>
               )}
             </p>
@@ -114,7 +119,7 @@ export function WaitlistForm({ className, compact }: { className?: string; compa
             {count.toLocaleString()} {count === 1 ? 'developer' : 'developers'} waiting
           </span>
         ) : (
-          <span className="text-ink-dim">No spam. One email when your seat opens.</span>
+          <span className="text-ink-dim">No spam. One secure account invitation.</span>
         )}
       </div>
     </div>

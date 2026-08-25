@@ -1,14 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, tokenStore } from '@/lib/api';
-import { browserTimezone } from '@/lib/utils';
 import type { Enrollment, Session, User } from '@/lib/types';
 
 interface AuthValue {
   user: User | null;
   enrollment: Enrollment | null;
   ready: boolean;
-  signup: (data: { name: string; email: string; password: string }) => Promise<void>;
   login: (data: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   setEnrollment: (enrollment: Enrollment) => void;
@@ -69,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       enrollment,
       ready,
-      signup: async (data) => adopt(await api.signup({ ...data, timezone: browserTimezone() })),
       login: async (data) => adopt(await api.login(data)),
       logout: async () => {
         try {

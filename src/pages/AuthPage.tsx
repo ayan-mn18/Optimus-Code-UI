@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Flame, Layers, Shuffle } from 'lucide-react';
 import { Button, Field } from '@/components/ui/primitives';
 import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/store/auth';
 import { ApiError } from '@/lib/api';
-import { SIGNUP_ENABLED } from '@/lib/features';
 
 const HIGHLIGHTS = [
   { icon: Layers, title: '544 problems, 19 topics', body: 'The Striver SDE and A2Z sheets, with links to LeetCode and the walkthrough video.' },
@@ -14,20 +13,21 @@ const HIGHLIGHTS = [
   { icon: Flame, title: 'Miss a day, it turns red', body: 'Whatever you skipped drops back in the mix and comes around again.' },
 ];
 
-export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
-  const isSignup = mode === 'signup';
-  const { user, login, signup } = useAuth();
+export function AuthPage() {
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [values, setValues] = useState({ name: '', email: '', password: '' });
+  const [values, setValues] = useState({
+    email: new URLSearchParams(location.search).get('email') ?? '',
+    password: '',
+  });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   if (user) return <Navigate to={(location.state as { from?: string })?.from ?? '/dashboard'} replace />;
 
-  if (isSignup && !SIGNUP_ENABLED) return <Navigate to="/" replace />;
 
   const set = (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement>) =>
     setValues((current) => ({ ...current, [key]: event.target.value }));
@@ -39,8 +39,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
     setFieldErrors({});
 
     try {
-      if (isSignup) await signup(values);
-      else await login({ email: values.email, password: values.password });
+      await login(values);
       navigate('/dashboard', { replace: true });
     } catch (error) {
       if (error instanceof ApiError && error.details?.length) {
@@ -120,26 +119,10 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             <Logo />
           </div>
 
-          <h2 className="mt-8 text-2xl font-semibold tracking-tight lg:mt-0">
-            {isSignup ? 'Create your account' : 'Welcome back'}
-          </h2>
-          <p className="mt-1.5 text-sm text-ink-muted">
-            {isSignup ? 'Two fields and a password. That is the whole signup.' : 'Pick up the streak where you left it.'}
-          </p>
+          <h2 className="mt-8 text-2xl font-semibold tracking-tight lg:mt-0">Welcome back</h2>
+          <p className="mt-1.5 text-sm text-ink-muted">Pick up the streak where you left it.</p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
-            {isSignup && (
-              <Field
-                label="Name"
-                name="name"
-                autoComplete="name"
-                placeholder="Ada Lovelace"
-                value={values.name}
-                onChange={set('name')}
-                error={fieldErrors.name}
-                required
-              />
-            )}
 
             <Field
               label="Email"
@@ -157,12 +140,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
               label="Password"
               name="password"
               type="password"
-              autoComplete={isSignup ? 'new-password' : 'current-password'}
+              autoComplete="current-password"
               placeholder="••••••••"
               value={values.password}
               onChange={set('password')}
               error={fieldErrors.password}
-              hint={isSignup ? 'At least 8 characters.' : undefined}
               required
             />
 
@@ -173,22 +155,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             )}
 
             <Button type="submit" size="lg" className="w-full" loading={submitting}>
-              {isSignup ? 'Create account' : 'Sign in'}
+              Sign in
               {!submitting && <ArrowRight className="size-4" />}
             </Button>
           </form>
 
-          {SIGNUP_ENABLED && (
-            <p className="mt-6 text-center text-sm text-ink-dim">
-              {isSignup ? 'Already have an account?' : 'New here?'}{' '}
-              <Link
-                to={isSignup ? '/login' : '/signup'}
-                className="font-medium text-brand-pale underline-offset-4 hover:underline"
-              >
-                {isSignup ? 'Sign in' : 'Create one'}
-              </Link>
-            </p>
-          )}
         </motion.div>
       </main>
     </div>

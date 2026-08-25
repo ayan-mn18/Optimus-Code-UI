@@ -47,8 +47,8 @@ npm run typecheck  # types only
 | Route         | What it does                                                                 |
 | ------------- | ---------------------------------------------------------------------------- |
 | `/`           | Marketing landing page — 3D parallax hero, waitlist, sheet coverage           |
-| `/signup`     | Split-screen signup — the pitch on the left, three fields on the right        |
 | `/login`      | Same shell, sign-in form                                                     |
+| `/invite`      | Validate a one-time waitlist invite and create the account securely |
 | `/onboarding` | Pick a daily target (3 / 5 / 8) and start the challenge                       |
 | `/dashboard`  | Today's set, day ring, streak, consistency heatmap, topic mastery, difficulty |
 | `/problems`   | All 544 problems — filter by topic, difficulty, solve state, or title         |
