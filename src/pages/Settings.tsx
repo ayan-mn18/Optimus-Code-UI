@@ -141,7 +141,7 @@ export function Settings() {
         </div>
 
         <p className="mt-3 text-[11px] text-ink-dim">
-          Changes apply next day. Today&rsquo;s assigned mix stays unchanged.
+          Changes update today&rsquo;s remaining target immediately. Tomorrow starts with the same goals.
         </p>
       </Card>
     </div>
