@@ -47,13 +47,6 @@ export function useSaveAssessmentAnswer(attemptId: string) {
   });
 }
 
-export function useRunAssessmentCode(attemptId: string) {
-  return useMutation({
-    mutationFn: ({ questionId, source }: { questionId: string; source: string }) =>
-      api.runAssessmentCode(attemptId, questionId, source),
-  });
-}
-
 export function useSubmitAssessment(attemptId: string) {
   const queryClient = useQueryClient();
   return useMutation({

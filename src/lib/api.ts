@@ -12,7 +12,6 @@ import type {
   User,
   AssessmentAnswer,
   AssessmentResponse,
-  CodeRunResult,
   DailyGoals,
   SystemDesignListResponse,
   Subscription,
@@ -167,12 +166,6 @@ export const api = {
       `/api/assessments/${attemptId}/answers/${questionId}`,
       { method: 'PATCH', ...body({ answer }) },
     ),
-
-  runAssessmentCode: (attemptId: string, questionId: string, source: string) =>
-    request<CodeRunResult>(`/api/assessments/${attemptId}/code/run`, {
-      method: 'POST',
-      ...body({ questionId, source }),
-    }),
 
   submitAssessment: (attemptId: string) =>
     request<{ passed: boolean; score: number; results: { questionId: string; score: number; feedback: string }[] }>(

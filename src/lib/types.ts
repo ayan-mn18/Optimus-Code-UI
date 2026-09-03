@@ -210,23 +210,17 @@ export interface MilestoneRecap {
 }
 
 export type AssessmentStatus = 'generating' | 'active' | 'grading' | 'passed' | 'failed';
-export type AssessmentAnswer = { text: string } | { value: string } | { source: string };
-
-export interface AssessmentTest {
-  name: string;
-  input: { id: number; available: boolean }[];
-  expected: number | null;
-}
+export type AssessmentAnswer = { values: string[] };
 
 export interface AssessmentQuestion {
   id: string;
-  type: 'text' | 'multiple_choice' | 'code';
+  type: 'multiple_choice';
   label: string;
   prompt: string;
   context: string;
-  options?: string[];
-  starterCode?: string;
-  visibleTests?: AssessmentTest[];
+  selectionMode: 'single' | 'multiple';
+  options: string[];
+  correctAnswers: string[];
 }
 
 export interface AssessmentAttempt {
@@ -244,15 +238,6 @@ export interface AssessmentAttempt {
 export interface AssessmentResponse {
   attempt: AssessmentAttempt;
   problem: Pick<Problem, 'id' | 'title' | 'kind' | 'topic' | 'subtopic' | 'difficulty'>;
-}
-
-export interface CodeRunResult {
-  passed: boolean;
-  results: { name: string; passed: boolean; expected?: unknown; actual?: unknown; error?: string }[];
-  status: string;
-  stderr: string;
-  time: string | null;
-  memory: number | null;
 }
 
 export interface Subscription {

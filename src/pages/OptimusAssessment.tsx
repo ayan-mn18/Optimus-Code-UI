@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
-import Editor from '@monaco-editor/react';
 import { Navigate, useParams } from 'react-router-dom';
-import { CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, LockKeyhole, Play, Sparkles } from 'lucide-react';
+import { CheckCircle2, ChevronLeft, ChevronRight, Circle, LockKeyhole, Sparkles } from 'lucide-react';
 import { Button, Card, Spinner } from '@/components/ui/primitives';
-import { useAssessment, useRunAssessmentCode, useSaveAssessmentAnswer, useSubmitAssessment } from '@/hooks/useSystemDesign';
+import { useAssessment, useSaveAssessmentAnswer, useSubmitAssessment } from '@/hooks/useSystemDesign';
 import { cn } from '@/lib/utils';
-import type { AssessmentAnswer, AssessmentQuestion } from '@/lib/types';
+import type { AssessmentAnswer } from '@/lib/types';
 
-const answerText = (answer: AssessmentAnswer | undefined) => {
-  if (!answer) return '';
-  if ('text' in answer) return answer.text;
-  if ('value' in answer) return answer.value;
-  return answer.source;
+const answerValues = (answer: AssessmentAnswer | undefined) => answer?.values ?? [];
+const sameAnswers = (left: string[], right: string[]) => {
+  const a = [...new Set(left)].sort();
+  const b = [...new Set(right)].sort();
+  return a.length === b.length && a.every((value, index) => value === b[index]);
 };
 
 export function OptimusAssessment() {
   const { attemptId } = useParams();
   const query = useAssessment(attemptId);
   const save = useSaveAssessmentAnswer(attemptId ?? '');
-  const runCode = useRunAssessmentCode(attemptId ?? '');
   const submit = useSubmitAssessment(attemptId ?? '');
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswer>>({});
@@ -50,7 +48,11 @@ export function OptimusAssessment() {
   const problem = response?.problem;
   const question = attempt?.questions[current];
   const answeredCount = useMemo(
-    () => attempt?.questions.filter((item) => answerText(answers[item.id]).trim().length > 0).length ?? 0,
+    () => attempt?.questions.filter((item) => answerValues(answers[item.id]).length > 0).length ?? 0,
+    [answers, attempt?.questions],
+  );
+  const liveScore = useMemo(
+    () => attempt?.questions.filter((item) => sameAnswers(answerValues(answers[item.id]), item.correctAnswers)).length ?? 0,
     [answers, attempt?.questions],
   );
 
@@ -63,18 +65,17 @@ export function OptimusAssessment() {
     return <AssessmentResult passed={attempt.status === 'passed'} score={attempt.score ?? 0} kind={problem.kind === 'HLD' ? 'HLD' : 'LLD'} />;
   }
 
-  const setAnswer = (value: string) => {
-    const answer: AssessmentAnswer = question.type === 'code'
-      ? { source: value }
-      : question.type === 'multiple_choice'
-        ? { value }
-        : { text: value };
-    setAnswers((currentAnswers) => ({ ...currentAnswers, [question.id]: answer }));
+  const toggleOption = (option: string) => {
+    const selected = answerValues(answers[question.id]);
+    const values = question.selectionMode === 'single'
+      ? [option]
+      : selected.includes(option) ? selected.filter((value) => value !== option) : [...selected, option];
+    setAnswers((currentAnswers) => ({ ...currentAnswers, [question.id]: { values } }));
   };
 
   const persistCurrent = async () => {
     const answer = answers[question.id];
-    if (!answer || !answerText(answer).trim()) return;
+    if (!answer || !answerValues(answer).length) return;
     await save.mutateAsync({ questionId: question.id, answer });
   };
 
@@ -109,10 +110,10 @@ export function OptimusAssessment() {
       <div className="grid min-h-0 flex-1 lg:grid-cols-[245px_minmax(0,1fr)]">
         <aside className="border-b border-line bg-surface p-4 lg:border-b-0 lg:border-r lg:p-5">
           <p className="truncate text-sm font-semibold">{query.data?.problem.title}</p>
-          <p className="mt-1 text-[11px] text-ink-dim">{answeredCount}/10 answered · autosaved</p>
+          <p className="mt-1 text-[11px] text-ink-dim">{answeredCount}/10 answered · live score {liveScore}/10</p>
           <div className="mt-4 grid grid-cols-10 gap-1.5 lg:grid-cols-5">
             {attempt.questions.map((item, index) => {
-              const answered = Boolean(answerText(answers[item.id]).trim());
+              const answered = answerValues(answers[item.id]).length > 0;
               return (
                 <button
                   key={item.id}
@@ -145,41 +146,26 @@ export function OptimusAssessment() {
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-muted">{question.context}</p>
 
             <div className="mt-7">
-              {question.type === 'code' ? (
-                <CodeQuestion
-                  question={question}
-                  value={answerText(answers[question.id]) || question.starterCode || ''}
-                  onChange={setAnswer}
-                  onRun={() => runCode.mutate({ questionId: question.id, source: answerText(answers[question.id]) || question.starterCode || '' })}
-                  running={runCode.isPending}
-                  result={runCode.data}
-                  error={runCode.error}
-                />
-              ) : question.type === 'multiple_choice' ? (
-                <div className="grid gap-2">
-                  {question.options?.map((option) => (
+              <div className="grid gap-2">
+                <p className="mb-1 text-xs text-ink-dim">{question.selectionMode === 'multiple' ? 'Select all that apply.' : 'Select one answer.'}</p>
+                  {question.options.map((option) => {
+                    const selected = answerValues(answers[question.id]).includes(option);
+                    return (
                     <button
                       key={option}
                       type="button"
-                      onClick={() => setAnswer(option)}
+                      onClick={() => toggleOption(option)}
                       className={cn(
                         'flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm',
-                        answerText(answers[question.id]) === option ? 'border-brand/60 bg-brand/10' : 'border-line bg-surface hover:border-line-strong',
+                        selected ? 'border-brand/60 bg-brand/10' : 'border-line bg-surface hover:border-line-strong',
                       )}
                     >
-                      {answerText(answers[question.id]) === option ? <CheckCircle2 className="size-4 text-brand" /> : <Circle className="size-4 text-ink-dim" />}
+                      {selected ? <CheckCircle2 className="size-4 text-brand" /> : <Circle className="size-4 text-ink-dim" />}
                       {option}
                     </button>
-                  ))}
-                </div>
-              ) : (
-                <textarea
-                  value={answerText(answers[question.id])}
-                  onChange={(event) => setAnswer(event.target.value)}
-                  placeholder="Explain your decisions, alternatives, and tradeoffs."
-                  className="min-h-64 w-full resize-y rounded-2xl border border-line bg-surface p-4 text-sm leading-relaxed text-ink placeholder:text-ink-dim focus:border-brand/70 focus:outline-none"
-                />
-              )}
+                    );
+                  })}
+              </div>
             </div>
 
             {(save.isError || submit.isError) && (
@@ -203,67 +189,13 @@ export function OptimusAssessment() {
   );
 }
 
-function CodeQuestion({
-  question,
-  value,
-  onChange,
-  onRun,
-  running,
-  result,
-  error,
-}: {
-  question: AssessmentQuestion;
-  value: string;
-  onChange: (value: string) => void;
-  onRun: () => void;
-  running: boolean;
-  result?: { passed: boolean; results: { name: string; passed: boolean; error?: string }[] };
-  error: Error | null;
-}) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-      <div className="flex items-center justify-between border-b border-line px-4 py-2 text-xs text-ink-dim">
-        <span className="inline-flex items-center gap-2 text-brand-pale"><Code2 className="size-3.5" /> JavaScript</span>
-        <span>{question.visibleTests?.length ?? 0} visible tests</span>
-      </div>
-      <div className="grid min-h-[420px] lg:grid-cols-[minmax(0,1.4fr)_minmax(250px,.6fr)]">
-        <div className="min-w-0 border-b border-line lg:border-b-0 lg:border-r">
-          <Editor
-            height="420px"
-            language="javascript"
-            theme="vs-dark"
-            value={value}
-            onChange={(next) => onChange(next ?? '')}
-            options={{ minimap: { enabled: false }, fontSize: 13, padding: { top: 16 }, automaticLayout: true, scrollBeyondLastLine: false }}
-          />
-        </div>
-        <div className="flex flex-col p-3">
-          <div className="space-y-2">
-            {(result?.results ?? question.visibleTests ?? []).map((test, index) => {
-              const passed = 'passed' in test ? test.passed : undefined;
-              return (
-                <div key={test.name} className={cn('rounded-xl border border-line p-3', passed && 'border-good/30 bg-good/[0.06]', passed === false && 'border-bad/30 bg-bad/[0.06]')}>
-                  <p className={cn('text-xs font-medium', passed && 'text-good', passed === false && 'text-bad')}>Test {index + 1}: {test.name}</p>
-                  {'error' in test && test.error && <p className="mt-1 font-mono text-[10px] text-bad">{test.error}</p>}
-                </div>
-              );
-            })}
-          </div>
-          {error && <p role="alert" className="mt-3 text-xs text-bad">{error.message}</p>}
-          <Button className="mt-auto" variant="outline" loading={running} onClick={onRun} icon={<Play className="size-4" />}>Run visible tests</Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function AssessmentResult({ passed, score, kind }: { passed: boolean; score: number; kind: 'LLD' | 'HLD' }) {
   return (
     <div className="grid min-h-dvh place-items-center px-5">
       <Card className="w-full max-w-lg text-center">
         <span className={cn('mx-auto grid size-24 place-items-center rounded-full border-4 text-2xl font-semibold', passed ? 'border-good/30 bg-good/10 text-good' : 'border-warn/30 bg-warn/10 text-warn')}>{score}/10</span>
         <h1 className="mt-5 text-2xl font-semibold">{passed ? 'Optimus approved this solution.' : 'Review, then try again.'}</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">{passed ? 'This System Design problem now counts toward your daily goal.' : 'A score of 8/10 and every required coding test are needed.'}</p>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">{passed ? 'This System Design problem now counts toward your daily goal.' : 'You need more than 80% correct answers to pass.'}</p>
         <a href={`/system-design/${kind.toLowerCase()}`} className="mt-6 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white">Return to System Design</a>
       </Card>
     </div>
