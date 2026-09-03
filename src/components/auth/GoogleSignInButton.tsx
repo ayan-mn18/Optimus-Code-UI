@@ -20,6 +20,17 @@ declare global {
 
 let googleScript: Promise<void> | null = null;
 
+function GoogleMark() {
+  return (
+    <svg aria-hidden="true" className="size-5 shrink-0" viewBox="0 0 24 24" fill="none">
+      <path fill="#4285F4" d="M21.35 12.23c0-.7-.06-1.37-.18-2.02H12v3.83h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.2Z" />
+      <path fill="#34A853" d="M12 21.6c2.64 0 4.85-.87 6.46-2.35l-3.14-2.45c-.87.58-1.98.92-3.32.92-2.55 0-4.7-1.72-5.47-4.03H3.28v2.53A9.76 9.76 0 0 0 12 21.6Z" />
+      <path fill="#FBBC05" d="M6.53 13.69a5.86 5.86 0 0 1 0-3.38V7.78H3.28a9.6 9.6 0 0 0 0 8.44l3.25-2.53Z" />
+      <path fill="#EA4335" d="M12 6.28c1.44 0 2.73.5 3.75 1.49l2.81-2.81C16.85 3.4 14.64 2.4 12 2.4a9.76 9.76 0 0 0-8.72 5.38l3.25 2.53C7.3 8 9.45 6.28 12 6.28Z" />
+    </svg>
+  );
+}
+
 function loadGoogleIdentity() {
   if (window.google?.accounts) return Promise.resolve();
   if (googleScript) return googleScript;
@@ -87,10 +98,16 @@ export function GoogleSignInButton({ onCredential }: { onCredential: (credential
 
   return (
     <div>
-      <div className="rounded-2xl bg-gradient-to-r from-brand-strong/80 via-brand/60 to-accent/70 p-px shadow-[0_12px_32px_-20px_rgba(124,92,255,0.9)] transition-shadow duration-200 hover:shadow-[0_16px_36px_-18px_rgba(124,92,255,0.95)]">
-        <div className="overflow-hidden rounded-[15px] border border-white/10 bg-card/95 px-1 py-1 backdrop-blur-xl">
-          <div ref={container} className="flex min-h-11 w-full justify-center overflow-hidden rounded-xl" />
+      <div className="group relative h-12 w-full rounded-xl bg-gradient-to-r from-brand-strong via-brand to-accent p-px shadow-[0_14px_34px_-22px_rgba(124,92,255,0.95)] transition-shadow duration-200 hover:shadow-[0_18px_40px_-18px_rgba(124,92,255,0.95)]">
+        <div className="pointer-events-none flex h-full items-center justify-center gap-3 rounded-[11px] border border-white/10 bg-elevated px-4 text-sm font-medium text-ink transition-colors group-hover:bg-card">
+          <GoogleMark />
+          <span>Continue with Google</span>
         </div>
+        <div
+          ref={container}
+          aria-label="Continue with Google"
+          className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 [&>iframe]:!h-full [&>iframe]:!w-full"
+        />
       </div>
       {error && <p role="alert" className="mt-2 rounded-lg border border-bad/30 bg-bad/10 px-3 py-2 text-center text-xs text-bad">{error}</p>}
     </div>
