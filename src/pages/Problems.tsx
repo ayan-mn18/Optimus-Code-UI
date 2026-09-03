@@ -76,11 +76,10 @@ export function Problems() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs uppercase tracking-wider text-ink-dim">Library</p>
-        <h1 className="mt-1 text-xl font-semibold tracking-tight">All problems</h1>
+        <p className="text-xs uppercase tracking-wider text-ink-dim">DSA library</p>
+        <h1 className="mt-1 text-xl font-semibold tracking-tight">All DSA problems</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          The Striver SDE and A2Z sheets, merged and deduped. Anything you tick here beyond today&rsquo;s five
-          counts as a bonus solve.
+          Striver SDE and A2Z sheets, merged and deduped. Problems completed beyond today&rsquo;s DSA goal count as bonus solves.
         </p>
       </div>
 

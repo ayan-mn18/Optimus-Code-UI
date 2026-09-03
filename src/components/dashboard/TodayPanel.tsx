@@ -1,18 +1,25 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Sparkles, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
 import { Button, Card } from '@/components/ui/primitives';
 import { formatDate, pluralize } from '@/lib/utils';
 import { useToggleSolve, useExtendToday } from '@/hooks/useChallenge';
+import { useCreateAssessment } from '@/hooks/useSystemDesign';
 import type { Problem, TodayResponse } from '@/lib/types';
 
 export function TodayPanel({ today }: { today: TodayResponse }) {
   const toggle = useToggleSolve();
+  const navigate = useNavigate();
+  const assessment = useCreateAssessment();
   const remaining = Math.max(today.target - today.solvedCount, 0);
 
   const onToggle = (problem: Problem, solved: boolean) => toggle.mutate({ problem, solved });
+  const startAssessment = async (problem: Problem) => {
+    const response = await assessment.mutateAsync(problem.id);
+    navigate(`/optimus/${response.attempt.id}`);
+  };
 
   return (
     <div className="space-y-4">
@@ -51,17 +58,34 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
         </div>
 
         <div className="p-5">
-          <ul className="space-y-2">
-            {today.problems.map((problem, index) => (
-              <ProblemRow
-                key={problem.id}
-                problem={problem}
-                index={index}
-                onToggle={onToggle}
-                pending={toggle.isPending && toggle.variables?.problem.id === problem.id}
-              />
-            ))}
-          </ul>
+          <div className="space-y-5">
+            {(['DSA', 'LLD', 'HLD'] as const).map((kind) => {
+              const problems = today.problems.filter((problem) => problem.kind === kind);
+              if (!problems.length) return null;
+              return (
+                <section key={kind}>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">{kind}</h2>
+                    <span className="text-[11px] text-ink-dim">{today.progress[kind]}/{today.targets[kind]} complete</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {problems.map((problem, index) => (
+                      <ProblemRow
+                        key={problem.id}
+                        problem={problem}
+                        index={index}
+                        onToggle={kind === 'DSA' ? onToggle : undefined}
+                        onAssess={kind === 'DSA' ? undefined : startAssessment}
+                        pending={(toggle.isPending && toggle.variables?.problem.id === problem.id) || (assessment.isPending && assessment.variables === problem.id)}
+                      />
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
+
+          {assessment.isError && <p role="alert" className="mt-3 text-xs text-bad">{assessment.error.message}</p>}
 
           <AnimatePresence>
             {today.isComplete && (
@@ -230,11 +254,11 @@ function KeepGoing({ today }: { today: TodayResponse }) {
           icon={<Sparkles className="size-4" />}
           className="flex-1"
         >
-          Deal another {today.target}
+          Deal another {today.targets.DSA} DSA
         </Button>
 
         <Link
-          to="/problems"
+          to="/dsa"
           className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-line-strong bg-elevated/60 px-4 text-sm font-medium transition-colors hover:border-brand/50 hover:bg-elevated"
         >
           <Library className="size-4" />

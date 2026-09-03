@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 import { milestoneQueryKey } from '@/hooks/useMilestone';
-import type { Leaderboard, Problem, ProblemListResponse, Streak, TodayResponse } from '@/lib/types';
+import type { DailyGoals, Leaderboard, Problem, ProblemListResponse, Streak, TodayResponse } from '@/lib/types';
 
 interface ToggleVars {
   problem: Problem;
@@ -145,7 +145,19 @@ export function useEnroll() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (dailyTarget: number) => api.enroll(dailyTarget),
+    mutationFn: (goals: DailyGoals) => api.enroll(goals),
+    onSuccess: ({ enrollment }) => {
+      setEnrollment(enrollment);
+      queryClient.invalidateQueries();
+    },
+  });
+}
+
+export function useUpdateGoals() {
+  const { setEnrollment } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (goals: DailyGoals) => api.updateGoals(goals),
     onSuccess: ({ enrollment }) => {
       setEnrollment(enrollment);
       queryClient.invalidateQueries();

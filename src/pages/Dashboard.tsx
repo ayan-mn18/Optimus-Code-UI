@@ -40,6 +40,7 @@ export function Dashboard() {
       </div>
 
       {overview.data ? <StatTiles overview={overview.data} /> : <TilesSkeleton />}
+      {overview.data && <TrackProgress tracks={overview.data.tracks} />}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <div className="space-y-6">
@@ -53,6 +54,25 @@ export function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function TrackProgress({ tracks }: { tracks: { kind: string; total: number; solved: number; percent: number }[] }) {
+  return (
+    <Card>
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div><p className="text-sm font-semibold">Track progress</p><p className="mt-1 text-xs text-ink-dim">DSA, low-level design, and high-level design.</p></div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {tracks.map((track) => (
+          <div key={track.kind} className="rounded-xl border border-line bg-surface/60 p-3">
+            <div className="flex items-center justify-between text-xs"><span className="font-medium">{track.kind}</span><span className="text-ink-dim">{track.solved}/{track.total}</span></div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-linear-to-r from-brand-strong to-accent" style={{ width: `${track.percent}%` }} /></div>
+            <p className="mt-2 text-[11px] text-ink-dim">{track.percent}% complete</p>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { Check, ExternalLink, Youtube, FileText, RotateCcw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Check, ExternalLink, Youtube, FileText, RotateCcw, Sparkles } from 'lucide-react';
+import { cn, youtubeWatchUrl } from '@/lib/utils';
 import { DifficultyBadge, Chip } from '@/components/ui/primitives';
 import type { Problem } from '@/lib/types';
 
@@ -8,11 +8,12 @@ interface ProblemRowProps {
   problem: Problem;
   index?: number;
   onToggle?: (problem: Problem, solved: boolean) => void;
+  onAssess?: (problem: Problem) => void;
   pending?: boolean;
   compact?: boolean;
 }
 
-export function ProblemRow({ problem, index = 0, onToggle, pending, compact }: ProblemRowProps) {
+export function ProblemRow({ problem, index = 0, onToggle, onAssess, pending, compact }: ProblemRowProps) {
   const solved = Boolean(problem.solved);
 
   return (
@@ -28,7 +29,7 @@ export function ProblemRow({ problem, index = 0, onToggle, pending, compact }: P
         compact && 'py-2',
       )}
     >
-      {onToggle && (
+      {onToggle && problem.kind === 'DSA' && (
         <button
           type="button"
           role="checkbox"
@@ -61,8 +62,19 @@ export function ProblemRow({ problem, index = 0, onToggle, pending, compact }: P
             </Chip>
           )}
         </div>
+          {problem.kind !== 'DSA' && <Chip className="border-brand/25 bg-brand/10 text-brand-pale">{problem.kind}</Chip>}
       </div>
 
+      {problem.kind !== 'DSA' && onAssess && !problem.solved && (
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => onAssess(problem)}
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-2.5 text-xs font-medium text-brand-pale hover:border-brand/60 disabled:opacity-50"
+        >
+          <Sparkles className="size-3.5" /> Optimus
+        </button>
+      )}
       <div className="flex shrink-0 items-center gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">
         {problem.leetcode_url && (
           <IconLink href={problem.leetcode_url} label={`Open ${problem.title} on LeetCode`}>
@@ -70,11 +82,11 @@ export function ProblemRow({ problem, index = 0, onToggle, pending, compact }: P
           </IconLink>
         )}
         {problem.youtube_url && (
-          <IconLink href={problem.youtube_url} label={`Watch the ${problem.title} walkthrough`}>
+          <IconLink href={youtubeWatchUrl(problem.youtube_url)} label={`Watch ${problem.title} on YouTube`}>
             <Youtube className="size-4" />
           </IconLink>
         )}
-        {problem.article_url && (
+        {problem.kind === 'DSA' && problem.article_url && (
           <IconLink href={problem.article_url} label={`Read the ${problem.title} article`}>
             <FileText className="size-4" />
           </IconLink>

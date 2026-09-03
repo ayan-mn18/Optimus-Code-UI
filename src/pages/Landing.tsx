@@ -9,27 +9,27 @@ import { useTilt } from '@/components/landing/useTilt';
 import { useAuth } from '@/store/auth';
 
 const STATS = [
-  { value: '544', label: 'problems' },
-  { value: '19', label: 'topics' },
-  { value: '5', label: 'a day' },
-  { value: '2', label: 'Striver sheets' },
+  { value: '822', label: 'problems' },
+  { value: '44', label: 'topics' },
+  { value: '3', label: 'tracks' },
+  { value: '10', label: 'Optimus questions' },
 ];
 
 const STEPS = [
   {
     icon: Shuffle,
-    title: 'Five land every morning',
-    body: 'One problem per topic, weighted toward whatever you have touched least. Never five array questions in a row.',
+    title: 'Your mix lands every morning',
+    body: 'Choose separate DSA, LLD, and HLD goals. Assignments favor unsolved topics and avoid repetition.',
   },
   {
     icon: CalendarDays,
-    title: 'Clear them, the day goes green',
-    body: 'Solve all five before midnight in your own timezone and the streak holds. Anything past five is bonus.',
+    title: 'Prove System Design work',
+    body: 'Optimus asks ten fresh questions. LLD attempts can include coding with hidden tests.',
   },
   {
     icon: RotateCcw,
-    title: 'Miss one and it comes back',
-    body: 'A short day is marked red and the problems you skipped drop back into the pool. Nothing quietly disappears.',
+    title: 'Clear every category',
+    body: 'The day turns green only after each configured track is complete. Missed work returns later.',
   },
 ];
 
@@ -70,6 +70,12 @@ export function Landing() {
         <Logo />
         <nav className="flex items-center gap-2">
           <Link
+            to="/pricing"
+            className="rounded-xl px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
+          >
+            Pricing
+          </Link>
+          <Link
             to="/login"
             className="rounded-xl px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
           >
@@ -91,20 +97,19 @@ export function Landing() {
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3 py-1 text-xs text-ink-muted backdrop-blur">
             <Layers className="size-3.5 text-brand" />
-            Striver SDE + A2Z, merged and deduped
+            DSA + LLD + HLD, one daily system
           </span>
 
           <h1 className="mt-5 text-[clamp(2.1rem,4.4vw,3.4rem)] font-semibold leading-[1.06] tracking-tight">
-            Five problems.
+            Three tracks.
             <br />
-            Every single day.
+            One daily system.
             <br />
-            <span className="gradient-text">No sheet left half-done.</span>
+            <span className="gradient-text">Every solution defended.</span>
           </h1>
 
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
-            Optimus Code deals you five DSA problems each morning — one per topic — and keeps score. Clear them
-            and the day turns green. Skip them and they come back around. The sheet finishes itself.
+            Optimus Code assigns DSA, LLD, and HLD work each morning. Solve algorithms directly. Prove System Design knowledge through a focused ten-question interview.
           </p>
 
           <div className="mt-8 max-w-lg">
@@ -178,10 +183,9 @@ export function Landing() {
         <div className="card p-6 sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight">Everything, already linked up</h2>
+              <h2 className="text-2xl font-semibold tracking-tight">Everything, already organized</h2>
               <p className="mt-2 max-w-lg text-sm text-ink-muted">
-                Both Striver sheets in one catalogue — 307 problems carry a LeetCode link and 452 carry the
-                walkthrough video, so you are one click from solving instead of searching.
+                Explore 544 DSA problems plus 73 LLD and 205 HLD items, grouped by topic and difficulty with original learning resources attached.
               </p>
             </div>
             <div className="flex gap-4 text-xs text-ink-dim">

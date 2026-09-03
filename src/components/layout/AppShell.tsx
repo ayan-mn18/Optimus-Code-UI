@@ -1,5 +1,6 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ListChecks, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
+import { useState } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { BrainCircuit, Braces, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
@@ -9,19 +10,46 @@ import { Logo } from './Logo';
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/problems', label: 'Problems', icon: ListChecks },
+  { to: '/dsa', label: 'DSA', icon: Braces },
+  {
+    label: 'System Design',
+    icon: BrainCircuit,
+    children: [
+      { to: '/system-design/lld', label: 'LLD', description: 'Low Level Design' },
+      { to: '/system-design/hld', label: 'HLD', description: 'High Level Design' },
+    ],
+  },
   { to: '/recap', label: 'Recap', icon: Share2 },
   { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { to: '/pricing', label: 'Pricing', icon: CreditCard },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
-/** The mobile bar has room for four; settings lives in the header there. */
-const MOBILE_NAV = NAV.filter((item) => item.to !== '/settings');
+const MOBILE_NAV = [
+  { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { to: '/dsa', label: 'DSA', icon: Braces },
+  { to: '/system-design/lld', label: 'Design', icon: BrainCircuit },
+  { to: '/recap', label: 'Recap', icon: Share2 },
+  { to: '/leaderboard', label: 'Ranks', icon: Trophy },
+  { to: '/settings', label: 'Settings', icon: Settings },
+];
 
 export function AppShell() {
   const { user, logout } = useAuth();
   const { data: today } = useToday();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [systemDesignOpen, setSystemDesignOpen] = useState(() => {
+    if (location.pathname.startsWith('/system-design')) return true;
+    return localStorage.getItem('oc.system-design-nav') !== 'closed';
+  });
+
+  const toggleSystemDesign = () => {
+    setSystemDesignOpen((open) => {
+      localStorage.setItem('oc.system-design-nav', open ? 'closed' : 'open');
+      return !open;
+    });
+  };
   const { data: milestone } = usePendingMilestone();
   const markMilestoneViewed = useMarkMilestoneViewed();
 
@@ -44,23 +72,50 @@ export function AppShell() {
         <Logo className="px-2" />
 
         <nav className="mt-8 space-y-1">
-          {NAV.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors',
-                  isActive
-                    ? 'bg-elevated text-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]'
-                    : 'text-ink-muted hover:bg-elevated/60 hover:text-ink',
-                )
-              }
-            >
-              <Icon className="size-4" />
-              {label}
-            </NavLink>
-          ))}
+          {NAV.map((item) => {
+            const Icon = item.icon;
+            if (item.children) {
+              const active = location.pathname.startsWith('/system-design');
+              return (
+                <div key={item.label}>
+                  <button
+                    type="button"
+                    aria-expanded={systemDesignOpen}
+                    onClick={toggleSystemDesign}
+                    className={cn('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors', active ? 'bg-elevated text-ink' : 'text-ink-muted hover:bg-elevated/60 hover:text-ink')}
+                  >
+                    <Icon className="size-4" />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    <ChevronDown className={cn('size-3.5 text-ink-dim transition-transform', !systemDesignOpen && '-rotate-90')} />
+                  </button>
+                  {systemDesignOpen && (
+                    <div className="ml-5 mt-1 space-y-1 border-l border-line pl-3">
+                      {item.children.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to}
+                          className={({ isActive }) => cn('flex items-center gap-2 rounded-lg px-2.5 py-2 transition-colors', isActive ? 'bg-brand/10 text-brand-pale' : 'text-ink-dim hover:bg-elevated/60 hover:text-ink-muted')}
+                        >
+                          <span className="grid size-7 shrink-0 place-items-center rounded-md border border-line bg-surface text-[10px] font-semibold">{child.label}</span>
+                          <span className="min-w-0 flex-1 truncate text-[11px]">{child.description}</span>
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to!}
+                className={({ isActive }) => cn('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors', isActive ? 'bg-elevated text-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]' : 'text-ink-muted hover:bg-elevated/60 hover:text-ink')}
+              >
+                <Icon className="size-4" />
+                {item.label}
+              </NavLink>
+            );
+          })}
         </nav>
 
         {today && (
@@ -127,7 +182,7 @@ export function AppShell() {
                 <span className="tabular-nums">{today.streak.current}</span>
               </span>
             )}
-            <Avatar name={user?.name ?? '?'} />
+            <Link to="/settings" aria-label="Open settings"><Avatar name={user?.name ?? '?'} /></Link>
           </div>
         </header>
 
@@ -137,7 +192,7 @@ export function AppShell() {
       </div>
 
       {/* ---- bottom nav (mobile) ------------------------------------------ */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-line bg-surface/95 backdrop-blur-xl lg:hidden">
         {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}

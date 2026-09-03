@@ -1,17 +1,12 @@
 # Optimus Code — UI
 
-Frontend for **Optimus Code**, a daily DSA challenge platform built on the
-[Striver SDE Sheet](https://takeuforward.org/dsa/strivers-sde-sheet-top-coding-interview-problems)
-and [A2Z Sheet](https://takeuforward.org/dsa/strivers-a2z-sheet-learn-dsa-a-to-z) — 544 problems across 19 topics.
+Frontend for **Optimus Code**, covering daily DSA, Low Level Design, and High Level
+Design practice. Users set separate category goals. DSA solves directly; System Design
+completion requires passing a ten-question Optimus assessment.
 
-Sign up, join the challenge, and get **5 problems every morning** — each from a different
-topic. Clear all five and the day goes green. Fall short and it turns **red**: the problems
-you skipped drop back into the pool and resurface later. Solve more than five and the extras
-count as bonus.
-
-Clear the day and you choose how to keep going: another dealt set on the same one-per-topic
-rule, or the open library. Every 10 green days banks a **streak freeze**, spent automatically
-so one skipped day cannot wipe a long run.
+Optimus supports generated question sets, rubric grading, and isolated JavaScript coding
+tasks with visible and hidden tests. Google Identity Services handles sign-in and signup.
+Dodo Payments provides the $10 monthly and $80 annual subscription checkout.
 
 API lives in [Optimus-Code](https://github.com/ayan-mn18/Optimus-Code).
 
@@ -25,17 +20,17 @@ API lives in [Optimus-Code](https://github.com/ayan-mn18/Optimus-Code).
 | Routing    | React Router 6                            |
 | Motion     | Framer Motion                             |
 | Icons      | lucide-react                              |
+| Editor     | Monaco, loaded only inside Optimus           |
 
 ## Getting started
 
 ```bash
-cp .env.example .env      # point VITE_API_URL at the running API
+cp .env.example .env      # set API URL and Google web client ID
 npm install
 npm run dev
 ```
 
-Opens on `http://localhost:5173`. The API must be running on the URL in `VITE_API_URL`
-(default `http://localhost:4000`).
+Opens on `http://localhost:5173`. The API defaults to `http://localhost:4000`.
 
 ```bash
 npm run build      # typecheck + production bundle
@@ -44,17 +39,22 @@ npm run typecheck  # types only
 
 ## Screens
 
-| Route         | What it does                                                                 |
-| ------------- | ---------------------------------------------------------------------------- |
-| `/`           | Marketing landing page — 3D parallax hero, waitlist, sheet coverage           |
-| `/login`      | Same shell, sign-in form                                                     |
-| `/invite`      | Validate a one-time waitlist invite and create the account securely |
-| `/onboarding` | Pick a daily target (3 / 5 / 8) and start the challenge                       |
-| `/dashboard`  | Today's set, day ring, streak, consistency heatmap, topic mastery, difficulty |
-| `/problems`   | All 544 problems — filter by topic, difficulty, solve state, or title         |
-| `/recap`      | Weekly recap card, downloadable as a PNG or shared via the OS share sheet     |
-| `/leaderboard`| Streak / solved / green-day standings, with your own rank pinned              |
-| `/settings`   | Profile, timezone, daily target                                              |
+| Route                    | What it does                                                        |
+| ------------------------ | ------------------------------------------------------------------- |
+| `/`                      | Marketing landing page and waitlist                                 |
+| `/login`                 | Password and Google sign-in/signup                                  |
+| `/invite`                | Secure one-time invite acceptance                                   |
+| `/onboarding`            | Pick DSA, LLD, and HLD daily goals                                  |
+| `/dashboard`             | Mixed daily set, per-track progress, streak, and analytics          |
+| `/dsa`                   | DSA catalogue with filters                                          |
+| `/system-design/lld`     | Topic-wise Low Level Design catalogue                               |
+| `/system-design/hld`     | Topic-wise High Level Design catalogue                              |
+| `/optimus/:attemptId`    | Locked ten-question assessment and Monaco coding workspace          |
+| `/pricing`               | $10 monthly and $80 annual Dodo plans                               |
+| `/billing/success`       | Hosted checkout return state                                        |
+| `/recap`                 | Weekly recap export                                                 |
+| `/leaderboard`           | Streak, solved, and consistency standings                           |
+| `/settings`              | Profile, subscription, and category goals                          |
 
 ## The landing page
 
@@ -97,16 +97,17 @@ exposes a per-cell readout on hover and focus.
 ```
 src/
   components/
-    charts/      DayRing, Heatmap, TopicMastery, DifficultySplit, palette
-    landing/     HeroScene, WaitlistForm, TiltCard, useTilt
-    recap/       RecapCard (SVG), exportCard (SVG → PNG)
-    dashboard/   TodayPanel, ProblemRow, StatTiles
-    layout/      AppShell, Logo
-    ui/          Button, Card, Field, badges, skeletons
-  hooks/         TanStack Query hooks + optimistic solve toggle
-  lib/           api client (token refresh), types, helpers
-  pages/         Landing, AuthPage, Onboarding, Dashboard, Problems, Recap, Leaderboard, Settings
-  store/         auth context
+    auth/        Google Identity Services button
+    charts/      Dashboard visualizations
+    dashboard/   Mixed daily work and progress
+    landing/     Marketing interactions
+    layout/      AppShell with nested LLD/HLD navigation
+    recap/       SVG recap export
+    ui/          Shared controls
+  hooks/         Challenge, System Design, and assessment queries
+  lib/           Authenticated API client and contracts
+  pages/         DSA, System Design, Optimus, Pricing, and account screens
+  store/         Auth and enrollment state
 ```
 
 ## Licence

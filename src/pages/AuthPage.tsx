@@ -1,22 +1,28 @@
-import { useState, type FormEvent } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Flame, Layers, Shuffle } from 'lucide-react';
 import { Button, Field } from '@/components/ui/primitives';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/store/auth';
 import { ApiError } from '@/lib/api';
+import { browserTimezone } from '@/lib/utils';
 
 const HIGHLIGHTS = [
-  { icon: Layers, title: '544 problems, 19 topics', body: 'The Striver SDE and A2Z sheets, with links to LeetCode and the walkthrough video.' },
-  { icon: Shuffle, title: '5 a day, never the same topic twice', body: 'A fresh set every morning, weighted toward the topics you have touched least.' },
-  { icon: Flame, title: 'Miss a day, it turns red', body: 'Whatever you skipped drops back in the mix and comes around again.' },
+  { icon: Layers, title: 'DSA, LLD, and HLD', body: 'A unified catalog with separate daily goals for every interview track.' },
+  { icon: Shuffle, title: 'Your mix arrives daily', body: 'Randomized assignments favor unsolved topics and avoid repetitive practice.' },
+  { icon: Flame, title: 'System Design gets verified', body: 'Optimus asks ten questions and runs hidden coding tests before completion.' },
 ];
 
 export function AuthPage() {
-  const { user, login } = useAuth();
+  const { user, login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const returnState = location.state;
+  const destination = returnState && typeof returnState === 'object' && 'from' in returnState && typeof returnState.from === 'string'
+    ? returnState.from
+    : '/dashboard';
 
   const [values, setValues] = useState({
     email: new URLSearchParams(location.search).get('email') ?? '',
@@ -26,7 +32,6 @@ export function AuthPage() {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  if (user) return <Navigate to={(location.state as { from?: string })?.from ?? '/dashboard'} replace />;
 
 
   const set = (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -40,7 +45,7 @@ export function AuthPage() {
 
     try {
       await login(values);
-      navigate('/dashboard', { replace: true });
+      navigate(destination, { replace: true });
     } catch (error) {
       if (error instanceof ApiError && error.details?.length) {
         setFieldErrors(Object.fromEntries(error.details.map((detail) => [detail.field, detail.message])));
@@ -50,6 +55,13 @@ export function AuthPage() {
       setSubmitting(false);
     }
   }
+
+  const onGoogleCredential = useCallback(async (credential: string) => {
+    await googleLogin(credential, browserTimezone());
+    navigate(destination, { replace: true });
+  }, [destination, googleLogin, navigate]);
+
+  if (user) return <Navigate to={destination} replace />;
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
@@ -69,10 +81,6 @@ export function AuthPage() {
           }}
         />
 
-        <div className="relative z-10">
-          <Logo />
-        </div>
-
         <div className="relative z-10 my-auto max-w-xl py-16">
           <p className="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-brand-pale">Built for consistency</p>
           <h1 className="text-[clamp(2.6rem,3.2vw,3.5rem)] font-semibold leading-[1.05] tracking-tight">
@@ -81,8 +89,7 @@ export function AuthPage() {
             <span className="gradient-text">The sheet handles itself.</span>
           </h1>
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
-            Optimus Code hands you five problems each morning — one per topic — and keeps score. Clear them and
-            the day goes green. Skip them and they come back.
+            Optimus Code assigns DSA, LLD, and HLD practice each morning. Clear every category and the day turns green. System Design counts only after Optimus approves it.
           </p>
 
           <ul className="mt-10 grid gap-3">
@@ -158,6 +165,10 @@ export function AuthPage() {
               Sign in
               {!submitting && <ArrowRight className="size-4" />}
             </Button>
+
+          <div className="my-5 flex items-center gap-3"><span className="h-px flex-1 bg-line" /><span className="text-[10px] uppercase tracking-wider text-ink-dim">or</span><span className="h-px flex-1 bg-line" /></div>
+          <GoogleSignInButton onCredential={onGoogleCredential} />
+          <p className="mt-4 text-center text-[11px] leading-relaxed text-ink-dim">New Google accounts sign up automatically.</p>
           </form>
 
         </motion.div>

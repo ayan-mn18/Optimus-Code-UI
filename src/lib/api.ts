@@ -10,6 +10,12 @@ import type {
   Streak,
   TodayResponse,
   User,
+  AssessmentAnswer,
+  AssessmentResponse,
+  CodeRunResult,
+  DailyGoals,
+  SystemDesignListResponse,
+  Subscription,
 } from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
@@ -106,6 +112,8 @@ export const api = {
   login: (data: { email: string; password: string }) =>
     request<Session>('/api/auth/login', { method: 'POST', ...body(data) }),
 
+  googleAuth: (credential: string, timezone: string) =>
+    request<Session>('/api/auth/google', { method: 'POST', ...body({ credential, timezone }) }),
   logout: () => request<void>('/api/auth/logout', { method: 'POST' }),
 
   me: () => request<{ user: User; enrollment: Enrollment | null }>('/api/auth/me'),
@@ -115,8 +123,11 @@ export const api = {
 
   challenge: () => request<{ enrollment: Enrollment | null; streak: Streak | null }>('/api/challenge'),
 
-  enroll: (dailyTarget: number) =>
-    request<{ enrollment: Enrollment }>('/api/challenge/enroll', { method: 'POST', ...body({ dailyTarget }) }),
+  enroll: (goals: DailyGoals) =>
+    request<{ enrollment: Enrollment }>('/api/challenge/enroll', { method: 'POST', ...body({ goals }) }),
+
+  updateGoals: (goals: DailyGoals) =>
+    request<{ enrollment: Enrollment }>('/api/challenge/goals', { method: 'PATCH', ...body({ goals }) }),
 
   today: () => request<TodayResponse>('/api/challenge/today'),
 
@@ -134,6 +145,41 @@ export const api = {
   overview: () => request<Overview>('/api/dashboard/overview'),
 
   problems: () => request<ProblemListResponse>('/api/dashboard/problems'),
+  systemDesign: (params: { kind: 'LLD' | 'HLD'; topic?: string; difficulty?: string; status?: string; search?: string }) => {
+    const query = new URLSearchParams(Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    return request<SystemDesignListResponse>(`/api/system-design?${query}`);
+  },
+
+  systemDesignProblem: (problemId: string) =>
+    request<{ problem: Problem }>(`/api/system-design/${problemId}`),
+
+  createAssessment: (problemId: string) =>
+    request<AssessmentResponse>('/api/assessments', { method: 'POST', ...body({ problemId }) }),
+
+  assessment: (attemptId: string) => request<AssessmentResponse>(`/api/assessments/${attemptId}`),
+
+  saveAssessmentAnswer: (attemptId: string, questionId: string, answer: AssessmentAnswer) =>
+    request<{ answer: { question_id: string; answer: AssessmentAnswer; submitted_at: string } }>(
+      `/api/assessments/${attemptId}/answers/${questionId}`,
+      { method: 'PATCH', ...body({ answer }) },
+    ),
+
+  runAssessmentCode: (attemptId: string, questionId: string, source: string) =>
+    request<CodeRunResult>(`/api/assessments/${attemptId}/code/run`, {
+      method: 'POST',
+      ...body({ questionId, source }),
+    }),
+
+  submitAssessment: (attemptId: string) =>
+    request<{ passed: boolean; score: number; results: { questionId: string; score: number; feedback: string }[] }>(
+      `/api/assessments/${attemptId}/submit`,
+      { method: 'POST' },
+    ),
+
+  subscription: () => request<{ subscription: Subscription | null }>('/api/billing/subscription'),
+
+  createCheckout: (plan: 'monthly' | 'annual') =>
+    request<{ checkoutUrl: string }>('/api/billing/checkout', { method: 'POST', ...body({ plan }) }),
 
 
   recap: (weeksAgo = 0) => request<Recap>(`/api/dashboard/recap?weeksAgo=${weeksAgo}`),

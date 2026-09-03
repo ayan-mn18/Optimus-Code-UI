@@ -6,23 +6,24 @@ import { Button, Card } from '@/components/ui/primitives';
 import { useEnroll } from '@/hooks/useChallenge';
 import { useAuth } from '@/store/auth';
 import { cn, browserTimezone } from '@/lib/utils';
+import type { DailyGoals } from '@/lib/types';
 
-const TARGETS = [
-  { value: 3, label: 'Steady', body: '3 a day — sustainable alongside a full-time job.' },
-  { value: 5, label: 'Standard', body: '5 a day — the sheet in about six weeks.', recommended: true },
-  { value: 8, label: 'Sprint', body: '8 a day — interview season, all in.' },
+const TARGETS: { value: DailyGoals; label: string; body: string; recommended?: boolean }[] = [
+  { value: { DSA: 2, LLD: 1, HLD: 0 }, label: 'Steady', body: 'Two DSA and one LLD problem.' },
+  { value: { DSA: 3, LLD: 1, HLD: 1 }, label: 'Standard', body: 'Three DSA, one LLD, and one HLD.', recommended: true },
+  { value: { DSA: 5, LLD: 2, HLD: 1 }, label: 'Sprint', body: 'Five DSA, two LLD, and one HLD.' },
 ];
 
 export function Onboarding() {
   const { enrollment } = useAuth();
-  const [target, setTarget] = useState(5);
+  const [goals, setGoals] = useState<DailyGoals>({ DSA: 3, LLD: 1, HLD: 1 });
   const enroll = useEnroll();
   const navigate = useNavigate();
 
   if (enrollment) return <Navigate to="/dashboard" replace />;
 
   const start = async () => {
-    await enroll.mutateAsync(target);
+    await enroll.mutateAsync(goals);
     navigate('/dashboard', { replace: true });
   };
 
@@ -42,8 +43,7 @@ export function Onboarding() {
             Join the <span className="gradient-text">daily challenge</span>
           </h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
-            Pick a daily target. Each morning you get that many problems, every one from a different topic. Miss
-            the target and the day turns red — the unsolved ones return later.
+            Pick a daily mix. Optimus assigns DSA, LLD, and HLD work across different topics. Complete every category before midnight to keep the day green.
           </p>
         </div>
 
@@ -51,10 +51,10 @@ export function Onboarding() {
           <fieldset>
             <legend className="sr-only">Daily target</legend>
             {TARGETS.map((option) => {
-              const selected = target === option.value;
+              const selected = goals.DSA === option.value.DSA && goals.LLD === option.value.LLD && goals.HLD === option.value.HLD;
               return (
                 <label
-                  key={option.value}
+                  key={option.label}
                   className={cn(
                     'mb-2 flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-3.5 transition-all last:mb-0',
                     selected
@@ -67,7 +67,7 @@ export function Onboarding() {
                     name="target"
                     className="sr-only"
                     checked={selected}
-                    onChange={() => setTarget(option.value)}
+                    onChange={() => setGoals(option.value)}
                   />
                   <span
                     className={cn(
@@ -90,7 +90,7 @@ export function Onboarding() {
                     <span className="mt-0.5 block text-xs text-ink-dim">{option.body}</span>
                   </span>
 
-                  <span className="text-2xl font-semibold tabular-nums text-ink-dim">{option.value}</span>
+                  <span className="text-right text-sm font-semibold tabular-nums text-ink-dim">{option.value.DSA}/{option.value.LLD}/{option.value.HLD}<span className="block text-[9px] font-normal">DSA · LLD · HLD</span></span>
                 </label>
               );
             })}
@@ -101,7 +101,7 @@ export function Onboarding() {
           </Button>
 
           <p className="text-center text-[11px] text-ink-dim">
-            Days roll over at midnight in {browserTimezone()}. You can change the target later in settings.
+            Days roll over at midnight in {browserTimezone()}. Change each category later in settings.
           </p>
         </Card>
       </motion.div>

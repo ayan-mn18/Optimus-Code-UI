@@ -1,17 +1,25 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, Button, Field } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
-import { useEnroll } from '@/hooks/useChallenge';
+import { useUpdateGoals } from '@/hooks/useChallenge';
 import { api } from '@/lib/api';
 import { browserTimezone, formatDate } from '@/lib/utils';
+import type { DailyGoals, ProblemKind } from '@/lib/types';
 
 export function Settings() {
   const { user, enrollment, setUser } = useAuth();
-  const enroll = useEnroll();
+  const updateGoals = useUpdateGoals();
+  const subscription = useQuery({ queryKey: ['subscription'], queryFn: api.subscription });
 
   const [name, setName] = useState(user?.name ?? '');
-  const [target, setTarget] = useState(enrollment?.daily_target ?? 5);
-  const [saved, setSaved] = useState<'profile' | 'target' | 'leaderboard' | null>(null);
+  const [goals, setGoals] = useState<DailyGoals>({
+    DSA: enrollment?.dsa_target ?? 3,
+    LLD: enrollment?.lld_target ?? 1,
+    HLD: enrollment?.hld_target ?? 1,
+  });
+  const [saved, setSaved] = useState<'profile' | 'goals' | 'leaderboard' | null>(null);
   const [saving, setSaving] = useState(false);
 
   const saveVisibility = async (showOnLeaderboard: boolean) => {
@@ -31,9 +39,14 @@ export function Settings() {
     }
   };
 
-  const saveTarget = async () => {
-    await enroll.mutateAsync(target);
-    setSaved('target');
+  const saveGoals = async () => {
+    await updateGoals.mutateAsync(goals);
+    setSaved('goals');
+  };
+
+  const setGoal = (kind: ProblemKind, value: number) => {
+    setGoals((current) => ({ ...current, [kind]: Math.max(0, Math.min(kind === 'DSA' ? 20 : 10, value)) }));
+    setSaved(null);
   };
 
   return (
@@ -82,34 +95,53 @@ export function Settings() {
       </Card>
 
       <Card>
+        <CardHeader title="Subscription" hint="Optimus Pro includes System Design assessments and coding exercises." />
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface/50 px-4 py-3">
+          <div>
+            <p className="text-sm font-medium text-ink">{subscription.data?.subscription ? `${subscription.data.subscription.plan} plan` : 'No active plan'}</p>
+            <p className="mt-1 text-xs capitalize text-ink-dim">{subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}</p>
+          </div>
+          <Link to="/pricing" className="inline-flex h-9 items-center rounded-lg border border-line-strong bg-elevated px-3 text-xs font-medium text-ink-muted hover:border-brand/50 hover:text-ink">
+            View pricing
+          </Link>
+        </div>
+      </Card>
+
+      <Card>
         <CardHeader
-          title="Daily target"
+          title="Daily goals"
           hint={enrollment ? `Challenge started ${formatDate(enrollment.started_on)}` : undefined}
         />
 
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="flex-1">
-            <span className="mb-2 block text-xs text-ink-muted">
-              Problems per day: <span className="font-medium text-ink">{target}</span>
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={12}
-              value={target}
-              onChange={(event) => setTarget(Number(event.target.value))}
-              className="w-full accent-[var(--color-brand)]"
-            />
-          </label>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {(['DSA', 'LLD', 'HLD'] as ProblemKind[]).map((kind) => (
+            <label key={kind} className="rounded-xl border border-line bg-surface/50 p-4">
+              <span className="flex items-center justify-between gap-2 text-xs text-ink-muted">
+                <span className="font-medium text-ink">{kind}</span>
+                <span>{kind === 'DSA' ? 'Algorithms' : kind === 'LLD' ? 'Object design' : 'Architecture'}</span>
+              </span>
+              <input
+                type="number"
+                min={0}
+                max={kind === 'DSA' ? 20 : 10}
+                value={goals[kind]}
+                onChange={(event) => setGoal(kind, Number(event.target.value))}
+                className="mt-4 h-11 w-full rounded-xl border border-line bg-elevated px-3 text-center text-xl font-semibold"
+              />
+            </label>
+          ))}
+        </div>
 
-          <Button variant="outline" onClick={saveTarget} loading={enroll.isPending}>
-            Update target
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button variant="outline" onClick={saveGoals} loading={updateGoals.isPending} disabled={goals.DSA + goals.LLD + goals.HLD < 1 || goals.DSA + goals.LLD + goals.HLD > 20}>
+            Update goals
           </Button>
-          {saved === 'target' && <span className="text-xs text-good">Updated</span>}
+          <span className="text-xs text-ink-dim">{goals.DSA + goals.LLD + goals.HLD} total each day</span>
+          {saved === 'goals' && <span className="text-xs text-good">Updated</span>}
         </div>
 
         <p className="mt-3 text-[11px] text-ink-dim">
-          Changing the target applies from your next day — today&rsquo;s set stays as it was handed out.
+          Changes apply next day. Today&rsquo;s assigned mix stays unchanged.
         </p>
       </Card>
     </div>

@@ -23,3 +23,18 @@ export const pluralize = (count: number, word: string, plural = `${word}s`) =>
   `${count} ${count === 1 ? word : plural}`;
 
 export const browserTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+export function youtubeWatchUrl(value: string) {
+  try {
+    const source = new URL(value);
+    const embedMatch = source.pathname.match(/^\/embed\/([^/]+)/);
+    if (!embedMatch) return value;
+    const watch = new URL('https://www.youtube.com/watch');
+    watch.searchParams.set('v', embedMatch[1]);
+    const start = source.searchParams.get('start');
+    if (start) watch.searchParams.set('t', `${start}s`);
+    return watch.toString();
+  } catch {
+    return value;
+  }
+}

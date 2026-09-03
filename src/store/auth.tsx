@@ -8,6 +8,7 @@ interface AuthValue {
   enrollment: Enrollment | null;
   ready: boolean;
   login: (data: { email: string; password: string }) => Promise<void>;
+  googleLogin: (credential: string, timezone: string) => Promise<void>;
   logout: () => Promise<void>;
   setEnrollment: (enrollment: Enrollment) => void;
   setUser: (user: User) => void;
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       enrollment,
       ready,
       login: async (data) => adopt(await api.login(data)),
+      googleLogin: async (credential, timezone) => adopt(await api.googleAuth(credential, timezone)),
       logout: async () => {
         try {
           await api.logout();
