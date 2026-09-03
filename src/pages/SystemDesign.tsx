@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
@@ -209,9 +209,20 @@ export function SystemDesign() {
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             {problem.subtopic && <Chip>{problem.subtopic}</Chip>}
                             <DifficultyBadge difficulty={problem.difficulty} />
+                            {problem.blogSlug && <Chip className="border-brand/25 bg-brand/10 text-brand-pale">Write-up</Chip>}
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
+                          {problem.blogSlug && (
+                            <Link
+                              to={`/blogs/${problem.blogSlug}`}
+                              aria-label={`Read the ${problem.title} write-up`}
+                              title="Read the write-up"
+                              className="grid size-9 place-items-center rounded-lg text-ink-dim hover:bg-elevated hover:text-brand"
+                            >
+                              <BookOpen className="size-4" />
+                            </Link>
+                          )}
                           {problem.youtube_url && (
                             <a
                               href={youtubeWatchUrl(problem.youtube_url)}

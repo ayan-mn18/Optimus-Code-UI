@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Braces, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
+import { BrainCircuit, Braces, BookOpen, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
@@ -19,6 +19,7 @@ const NAV = [
       { to: '/system-design/hld', label: 'HLD', description: 'High Level Design' },
     ],
   },
+  { to: '/blogs', label: 'Blogs', icon: BookOpen },
   { to: '/recap', label: 'Recap', icon: Share2 },
   { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   { to: '/pricing', label: 'Pricing', icon: CreditCard },
@@ -29,7 +30,7 @@ const MOBILE_NAV = [
   { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { to: '/dsa', label: 'DSA', icon: Braces },
   { to: '/system-design/lld', label: 'Design', icon: BrainCircuit },
-  { to: '/recap', label: 'Recap', icon: Share2 },
+  { to: '/blogs', label: 'Blogs', icon: BookOpen },
   { to: '/leaderboard', label: 'Ranks', icon: Trophy },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];

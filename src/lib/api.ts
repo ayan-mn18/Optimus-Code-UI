@@ -16,6 +16,10 @@ import type {
   DailyGoals,
   SystemDesignListResponse,
   Subscription,
+  Blog,
+  BlogDetailResponse,
+  BlogDraft,
+  BlogListResponse,
 } from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
@@ -191,6 +195,37 @@ export const api = {
 
   leaderboard: (metric: Leaderboard['metric'] = 'streak') =>
     request<Leaderboard>(`/api/leaderboard?metric=${metric}`),
+
+  blogs: (params: {
+    kind?: string;
+    topic?: string;
+    company?: string;
+    tag?: string;
+    search?: string;
+    sort?: string;
+    page?: number;
+    pageSize?: number;
+  } = {}) => {
+    const query = new URLSearchParams(
+      Object.entries(params)
+        .filter(([, value]) => value !== undefined && value !== '' && value !== 'all')
+        .map(([key, value]) => [key, String(value)]),
+    );
+    return request<BlogListResponse>(`/api/blogs?${query}`);
+  },
+
+  blog: (slug: string) => request<BlogDetailResponse>(`/api/blogs/${slug}`),
+
+  myBlogs: () => request<{ items: Blog[] }>('/api/blogs/mine'),
+
+  createBlog: (draft: BlogDraft) => request<{ blog: Blog }>('/api/blogs', { method: 'POST', ...body(draft) }),
+
+  updateBlog: (id: string, draft: Partial<BlogDraft>) =>
+    request<{ blog: Blog }>(`/api/blogs/${id}`, { method: 'PATCH', ...body(draft) }),
+
+  deleteBlog: (id: string) => request<void>(`/api/blogs/${id}`, { method: 'DELETE' }),
+
+  likeBlog: (id: string) => request<{ liked: boolean; likes: number }>(`/api/blogs/${id}/like`, { method: 'POST' }),
 
   waitlistCount: () => request<{ count: number }>('/api/waitlist'),
 

@@ -54,6 +54,8 @@ export interface Problem {
   position?: number;
   round?: number;
   carriedOver?: boolean;
+  /** Slug of the published write-up for this problem, when one exists. */
+  blogSlug?: string | null;
 }
 
 export interface ProblemListResponse {
@@ -265,4 +267,110 @@ export interface Session {
   enrollment: Enrollment | null;
   accessToken: string;
   refreshToken: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Blogs                                                                       */
+/* -------------------------------------------------------------------------- */
+
+export type BlogKind = ProblemKind | 'General';
+export type BlogStatus = 'draft' | 'published';
+export type BlogOrigin = 'user' | 'pipeline' | 'editorial';
+export type CalloutTone = 'info' | 'tip' | 'warn' | 'gotcha' | 'interview';
+
+/**
+ * An article is an ordered list of typed blocks rather than a markdown string:
+ * the reader renders diagrams and interactive widgets from them, and the
+ * research pipeline emits them directly as JSON. Unknown types are skipped, so
+ * the pipeline may run ahead of the renderer.
+ */
+export type BlogBlock =
+  | { type: 'heading'; level: 2 | 3; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; ordered?: boolean; items: string[] }
+  | { type: 'callout'; tone: CalloutTone; title?: string; text: string }
+  | { type: 'code'; language: string; filename?: string; code: string }
+  | { type: 'mermaid'; title?: string; caption?: string; code: string }
+  | { type: 'table'; caption?: string; headers: string[]; rows: string[][] }
+  | { type: 'steps'; items: { title: string; text: string }[] }
+  | { type: 'quote'; text: string; cite?: string }
+  | { type: 'widget'; name: string; title?: string; caption?: string }
+  | { type: 'divider' }
+  | { type: string; [key: string]: unknown };
+
+export interface CompanyTag {
+  name: string;
+  count?: number;
+  roles?: string[];
+  lastSeen?: string;
+  sources?: string[];
+}
+
+export interface BlogRef {
+  title: string;
+  url: string;
+  source?: string;
+  kind: 'problem' | 'article' | 'discussion' | 'video' | 'repo' | 'other';
+  note?: string;
+}
+
+export interface Blog {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  kind: BlogKind;
+  problemId: string | null;
+  topic: string | null;
+  difficulty: Difficulty | null;
+  author: { id: string | null; name: string };
+  origin: BlogOrigin;
+  status: BlogStatus;
+  coverEmoji: string;
+  readMinutes: number;
+  tags: string[];
+  companies: CompanyTag[];
+  refs: BlogRef[];
+  views: number;
+  likes: number;
+  liked: boolean;
+  isAuthor: boolean;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  blocks?: BlogBlock[];
+}
+
+export interface BlogListResponse {
+  items: Blog[];
+  total: number;
+  page: number;
+  pageSize: number;
+  facets: {
+    topics: string[];
+    tags: string[];
+    companies: { name: string; blogs: number }[];
+    kinds: BlogKind[];
+  };
+}
+
+export interface BlogDetailResponse {
+  blog: Blog & { blocks: BlogBlock[] };
+  related: Blog[];
+}
+
+export interface BlogDraft {
+  title: string;
+  slug?: string;
+  summary?: string;
+  kind: BlogKind;
+  problemId?: string | null;
+  topic?: string;
+  difficulty?: Difficulty | null;
+  coverEmoji?: string;
+  status: BlogStatus;
+  blocks: BlogBlock[];
+  tags: string[];
+  companies: CompanyTag[];
+  refs: BlogRef[];
 }

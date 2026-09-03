@@ -8,6 +8,9 @@ import { Onboarding } from '@/pages/Onboarding';
 import { Dashboard } from '@/pages/Dashboard';
 import { Problems } from '@/pages/Problems';
 import { SystemDesign } from '@/pages/SystemDesign';
+import { Blogs } from '@/pages/Blogs';
+import { BlogPost } from '@/pages/BlogPost';
+import { BlogEditor } from '@/pages/BlogEditor';
 import { Recap } from '@/pages/Recap';
 import { Leaderboard } from '@/pages/Leaderboard';
 import { Settings } from '@/pages/Settings';
@@ -57,6 +60,10 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dsa" element={<Problems />} />
         <Route path="/system-design/:kind" element={<SystemDesign />} />
+        <Route path="/blogs" element={<Blogs />} />
+        <Route path="/blogs/new" element={<BlogEditor />} />
+        <Route path="/blogs/:slug" element={<BlogPost />} />
+        <Route path="/blogs/:slug/edit" element={<BlogEditor />} />
         <Route path="/recap" element={<Recap />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/settings" element={<Settings />} />
