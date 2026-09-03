@@ -68,9 +68,10 @@ export function GoogleSignInButton({ onCredential }: { onCredential: (credential
           type: 'standard',
           theme: 'filled_black',
           size: 'large',
-          shape: 'pill',
+          shape: 'rectangular',
           text: 'continue_with',
-          width: 360,
+          logo_alignment: 'left',
+          width: '100%',
         });
       })
       .catch((reason) => setError(reason instanceof Error ? reason.message : 'Google sign-in failed'));
@@ -86,8 +87,12 @@ export function GoogleSignInButton({ onCredential }: { onCredential: (credential
 
   return (
     <div>
-      <div ref={container} className="flex min-h-11 justify-center" />
-      {error && <p role="alert" className="mt-2 text-center text-xs text-bad">{error}</p>}
+      <div className="rounded-2xl bg-gradient-to-r from-brand-strong/80 via-brand/60 to-accent/70 p-px shadow-[0_12px_32px_-20px_rgba(124,92,255,0.9)] transition-shadow duration-200 hover:shadow-[0_16px_36px_-18px_rgba(124,92,255,0.95)]">
+        <div className="overflow-hidden rounded-[15px] border border-white/10 bg-card/95 px-1 py-1 backdrop-blur-xl">
+          <div ref={container} className="flex min-h-11 w-full justify-center overflow-hidden rounded-xl" />
+        </div>
+      </div>
+      {error && <p role="alert" className="mt-2 rounded-lg border border-bad/30 bg-bad/10 px-3 py-2 text-center text-xs text-bad">{error}</p>}
     </div>
   );
 }
