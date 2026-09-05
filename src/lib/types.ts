@@ -283,12 +283,31 @@ export type BlogBlock =
   | { type: 'divider' }
   | { type: string; [key: string]: unknown };
 
+/**
+ * Provenance is keyed on the source, not the company: one link carries every
+ * company it names. `CompanyTag` is derived from this server-side, so a company
+ * card always links to the sources that actually mention it — and a company no
+ * source mentions cannot appear at all.
+ */
+export interface Evidence {
+  url: string;
+  title: string;
+  source?: string;
+  /** report = a first-hand write-up · aggregate = a site's tally · roundup = a writer's claim */
+  kind: 'report' | 'aggregate' | 'roundup';
+  quote?: string;
+  note?: string;
+  companies: { name: string; role?: string; date?: string }[];
+}
+
 export interface CompanyTag {
   name: string;
-  count?: number;
-  roles?: string[];
+  /** Distinct sources naming this company — not a guessed frequency. */
+  count: number;
+  roles: string[];
   lastSeen?: string;
-  sources?: string[];
+  sources: string[];
+  confidence: 'reported' | 'aggregated' | 'claimed';
 }
 
 export interface BlogRef {
@@ -314,6 +333,7 @@ export interface Blog {
   coverEmoji: string;
   readMinutes: number;
   tags: string[];
+  evidence: Evidence[];
   companies: CompanyTag[];
   refs: BlogRef[];
   views: number;
@@ -356,6 +376,7 @@ export interface BlogDraft {
   status: BlogStatus;
   blocks: BlogBlock[];
   tags: string[];
-  companies: CompanyTag[];
+  /** Company tags are derived from this by the API, so drafts never send them. */
+  evidence: Evidence[];
   refs: BlogRef[];
 }

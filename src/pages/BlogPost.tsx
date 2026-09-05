@@ -100,7 +100,7 @@ export function BlogPost() {
           </div>
 
           <div className="mt-12 space-y-4">
-            <AskedInCompanies companies={blog.companies} />
+            <AskedInCompanies companies={blog.companies} evidence={blog.evidence} />
             <ReferenceList refs={blog.refs} />
           </div>
 

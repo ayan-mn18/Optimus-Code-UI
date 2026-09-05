@@ -6,11 +6,12 @@ import { BlockRenderer } from '@/components/blog/BlockRenderer';
 import { useBlog, useCreateBlog, useDeleteBlog, useUpdateBlog } from '@/hooks/useBlogs';
 import { parseBlocks, serializeBlocks } from '@/lib/blog-markdown';
 import { cn } from '@/lib/utils';
-import type { BlogKind, BlogRef, CompanyTag, Difficulty } from '@/lib/types';
+import type { BlogKind, BlogRef, Difficulty, Evidence } from '@/lib/types';
 
 const KINDS: BlogKind[] = ['LLD', 'HLD', 'DSA', 'General'];
 const DIFFICULTIES: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 const REF_KINDS: BlogRef['kind'][] = ['problem', 'article', 'discussion', 'video', 'repo', 'other'];
+const EVIDENCE_KINDS: Evidence['kind'][] = ['report', 'aggregate', 'roundup'];
 
 const STARTER = `## The problem
 
@@ -71,7 +72,7 @@ export function BlogEditor() {
   const [coverEmoji, setCoverEmoji] = useState('📘');
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState('');
-  const [companies, setCompanies] = useState<CompanyTag[]>([]);
+  const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [refs, setRefs] = useState<BlogRef[]>([]);
   const [markdown, setMarkdown] = useState(STARTER);
   const [preview, setPreview] = useState(false);
@@ -89,7 +90,7 @@ export function BlogEditor() {
     setDifficulty(blog.difficulty ?? '');
     setCoverEmoji(blog.coverEmoji);
     setTags(blog.tags);
-    setCompanies(blog.companies);
+    setEvidence(blog.evidence);
     setRefs(blog.refs);
     setMarkdown(serializeBlocks(blog.blocks));
     setLoaded(true);
@@ -108,7 +109,7 @@ export function BlogEditor() {
     coverEmoji,
     blocks,
     tags,
-    companies: companies.filter((company) => company.name.trim()),
+    evidence: evidence.filter((item) => item.url.trim() && item.title.trim()),
     refs: refs.filter((ref) => ref.title.trim() && ref.url.trim()),
   });
 
@@ -304,63 +305,92 @@ export function BlogEditor() {
         <div className="space-y-4">
           <Card className="p-4">
             <CardHeader
-              title="Asked in companies"
-              hint="A source link turns a claim into evidence."
+              title="Evidence"
+              hint="One row per source. Company tags are generated from these — a company with no source cannot be shown."
               action={
-                <Button size="sm" variant="ghost" onClick={() => setCompanies([...companies, { name: '' }])} icon={<Plus className="size-3.5" />}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setEvidence([...evidence, { url: '', title: '', kind: 'report', companies: [] }])}
+                  icon={<Plus className="size-3.5" />}
+                >
                   Add
                 </Button>
               }
             />
             <ul className="space-y-3">
-              {companies.map((company, index) => (
-                <li key={index} className="space-y-2 rounded-xl border border-line bg-surface/50 p-3">
-                  <div className="flex gap-2">
+              {evidence.map((item, index) => {
+                const patch = (changes: Partial<Evidence>) =>
+                  setEvidence(evidence.map((entry, i) => (i === index ? { ...entry, ...changes } : entry)));
+
+                return (
+                  <li key={index} className="space-y-2 rounded-xl border border-line bg-surface/50 p-3">
+                    <div className="flex gap-2">
+                      <input
+                        value={item.title}
+                        onChange={(event) => patch({ title: event.target.value })}
+                        placeholder="Amazon SDE-II interview experience"
+                        aria-label="Evidence title"
+                        className="h-8 min-w-0 flex-1 rounded-lg border border-line bg-surface/80 px-2.5 text-xs focus:border-brand/70 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        aria-label={`Remove ${item.title || 'evidence'}`}
+                        onClick={() => setEvidence(evidence.filter((_, i) => i !== index))}
+                        className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-dim hover:bg-elevated hover:text-bad"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
                     <input
-                      value={company.name}
-                      onChange={(event) => setCompanies(companies.map((entry, i) => i === index ? { ...entry, name: event.target.value } : entry))}
-                      placeholder="Company"
-                      aria-label="Company name"
-                      className="h-8 min-w-0 flex-1 rounded-lg border border-line bg-surface/80 px-2.5 text-xs focus:border-brand/70 focus:outline-none"
+                      value={item.url}
+                      onChange={(event) => patch({ url: event.target.value })}
+                      placeholder="https://…"
+                      aria-label="Evidence url"
+                      className="h-8 w-full rounded-lg border border-line bg-surface/80 px-2.5 font-mono text-[11px] focus:border-brand/70 focus:outline-none"
                     />
+                    <div className="flex gap-2">
+                      <input
+                        value={item.source ?? ''}
+                        onChange={(event) => patch({ source: event.target.value })}
+                        placeholder="GeeksforGeeks"
+                        aria-label="Evidence publisher"
+                        className="h-8 min-w-0 flex-1 rounded-lg border border-line bg-surface/80 px-2.5 text-xs focus:border-brand/70 focus:outline-none"
+                      />
+                      <select
+                        value={item.kind}
+                        onChange={(event) => patch({ kind: event.target.value as Evidence['kind'] })}
+                        aria-label="Evidence strength"
+                        className="h-8 rounded-lg border border-line bg-surface/80 px-2 text-xs"
+                      >
+                        {EVIDENCE_KINDS.map((value) => <option key={value} value={value}>{value}</option>)}
+                      </select>
+                    </div>
                     <input
-                      value={company.count ?? ''}
-                      onChange={(event) => setCompanies(companies.map((entry, i) => i === index ? { ...entry, count: Number(event.target.value) || undefined } : entry))}
-                      placeholder="×"
-                      inputMode="numeric"
-                      aria-label="Times reported"
-                      className="h-8 w-12 rounded-lg border border-line bg-surface/80 px-2 text-center text-xs focus:border-brand/70 focus:outline-none"
+                      value={item.companies.map((company) => company.name).join(', ')}
+                      onChange={(event) => patch({
+                        companies: event.target.value
+                          .split(',')
+                          .map((name) => name.trim())
+                          .filter(Boolean)
+                          .map((name) => item.companies.find((company) => company.name === name) ?? { name }),
+                      })}
+                      placeholder="Companies this source names, comma separated"
+                      aria-label="Companies named by this source"
+                      className="h-8 w-full rounded-lg border border-line bg-surface/80 px-2.5 text-xs focus:border-brand/70 focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      aria-label={`Remove ${company.name || 'company'}`}
-                      onClick={() => setCompanies(companies.filter((_, i) => i !== index))}
-                      className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-dim hover:bg-elevated hover:text-bad"
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  </div>
-                  <input
-                    value={company.roles?.join(', ') ?? ''}
-                    onChange={(event) => setCompanies(companies.map((entry, i) => i === index
-                      ? { ...entry, roles: event.target.value.split(',').map((role) => role.trim()).filter(Boolean) }
-                      : entry))}
-                    placeholder="Roles, comma separated"
-                    aria-label="Roles"
-                    className="h-8 w-full rounded-lg border border-line bg-surface/80 px-2.5 text-xs focus:border-brand/70 focus:outline-none"
-                  />
-                  <input
-                    value={company.sources?.[0] ?? ''}
-                    onChange={(event) => setCompanies(companies.map((entry, i) => i === index
-                      ? { ...entry, sources: event.target.value.trim() ? [event.target.value.trim()] : [] }
-                      : entry))}
-                    placeholder="https://source-of-the-claim"
-                    aria-label="Source link"
-                    className="h-8 w-full rounded-lg border border-line bg-surface/80 px-2.5 font-mono text-[11px] focus:border-brand/70 focus:outline-none"
-                  />
-                </li>
-              ))}
-              {!companies.length && <li className="text-xs text-ink-dim">No company tags yet.</li>}
+                    <textarea
+                      value={item.quote ?? ''}
+                      onChange={(event) => patch({ quote: event.target.value })}
+                      rows={2}
+                      placeholder="Verbatim quote from the source"
+                      aria-label="Quote"
+                      className="w-full rounded-lg border border-line bg-surface/80 px-2.5 py-1.5 text-xs focus:border-brand/70 focus:outline-none"
+                    />
+                  </li>
+                );
+              })}
+              {!evidence.length && <li className="text-xs text-ink-dim">No sources yet.</li>}
             </ul>
           </Card>
 
