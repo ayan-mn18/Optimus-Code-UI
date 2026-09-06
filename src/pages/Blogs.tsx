@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
 import { ApiError } from '@/lib/api';
-import { Button, Card, Chip, EmptyState, Skeleton } from '@/components/ui/primitives';
+import { Button, Card, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { ProLockCard } from '@/components/billing/ProLockCard';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { RequestWriteUp } from '@/components/blog/RequestWriteUp';
@@ -129,6 +129,15 @@ export function Blogs() {
             {facets?.topics.map((entry) => <option key={entry} value={entry}>{entry}</option>)}
           </select>
           <select
+            value={tag}
+            onChange={(event) => setTag(event.target.value)}
+            aria-label="Filter by tag"
+            className="h-9 max-w-52 rounded-lg border border-line bg-surface/80 px-3 text-sm text-ink-muted"
+          >
+            <option value="all">All tags</option>
+            {facets?.tags.map((entry) => <option key={entry} value={entry}>{entry}</option>)}
+          </select>
+          <select
             value={company}
             onChange={(event) => setCompany(event.target.value)}
             aria-label="Filter by company"
@@ -151,20 +160,6 @@ export function Blogs() {
             <Button size="sm" variant="ghost" onClick={resetFilters} icon={<RotateCcw className="size-3.5" />}>Reset</Button>
           )}
         </div>
-
-        {facets?.tags.length ? (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] text-ink-dim">Tags</span>
-            <button type="button" onClick={() => setTag('all')}>
-              <Chip className={cn(tag === 'all' && 'border-brand/40 bg-brand/10 text-brand-pale')}>All</Chip>
-            </button>
-            {facets.tags.map((entry) => (
-              <button key={entry} type="button" onClick={() => setTag(entry === tag ? 'all' : entry)}>
-                <Chip className={cn(entry === tag && 'border-brand/40 bg-brand/10 text-brand-pale')}>{entry}</Chip>
-              </button>
-            ))}
-          </div>
-        ) : null}
       </Card>}
 
       {isLocked ? null : query.isError ? (
