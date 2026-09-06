@@ -21,6 +21,8 @@ export function Settings() {
   });
   const [saved, setSaved] = useState<'profile' | 'goals' | 'leaderboard' | null>(null);
   const [saving, setSaving] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [portalError, setPortalError] = useState('');
 
   const saveVisibility = async (showOnLeaderboard: boolean) => {
     const { user: updated } = await api.updateProfile({ showOnLeaderboard });
@@ -42,6 +44,18 @@ export function Settings() {
   const saveGoals = async () => {
     await updateGoals.mutateAsync(goals);
     setSaved('goals');
+  };
+
+  const openBillingPortal = async () => {
+    setPortalLoading(true);
+    setPortalError('');
+    try {
+      const { portalUrl } = await api.billingPortal();
+      window.location.assign(portalUrl);
+    } catch (error) {
+      setPortalError(error instanceof Error ? error.message : 'Billing management could not be opened');
+      setPortalLoading(false);
+    }
   };
 
   const setGoal = (kind: ProblemKind, value: number) => {
@@ -109,12 +123,16 @@ export function Settings() {
               {subscription.data?.billingExempt ? 'Legacy account exception' : subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}
             </p>
           </div>
-          {!subscription.data?.billingExempt && (
+          {!subscription.data?.billingExempt && subscription.data?.subscription?.status === 'active' && (
+            <Button size="sm" variant="outline" loading={portalLoading} onClick={openBillingPortal}>Manage billing</Button>
+          )}
+          {!subscription.data?.billingExempt && !subscription.data?.subscription && (
             <Link to="/pricing" className="inline-flex h-9 items-center rounded-lg border border-line-strong bg-elevated px-3 text-xs font-medium text-ink-muted hover:border-brand/50 hover:text-ink">
               View pricing
             </Link>
           )}
         </div>
+        {portalError && <p role="alert" className="mt-3 text-xs text-bad">{portalError}</p>}
       </Card>
 
       <Card>

@@ -179,6 +179,7 @@ export const api = {
 
   createCheckout: (plan: 'monthly' | 'annual') =>
     request<{ checkoutUrl: string }>('/api/billing/checkout', { method: 'POST', ...body({ plan }) }),
+  billingPortal: () => request<{ portalUrl: string }>('/api/billing/portal', { method: 'POST' }),
 
 
   recap: (weeksAgo = 0) => request<Recap>(`/api/dashboard/recap?weeksAgo=${weeksAgo}`),
