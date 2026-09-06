@@ -123,7 +123,7 @@ export function Settings() {
               {subscription.data?.billingExempt ? 'Legacy account exception' : subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}
             </p>
           </div>
-          {!subscription.data?.billingExempt && subscription.data?.subscription?.status === 'active' && (
+          {!subscription.data?.billingExempt && subscription.data?.subscription && (
             <Button size="sm" variant="outline" loading={portalLoading} onClick={openBillingPortal}>Manage billing</Button>
           )}
           {!subscription.data?.billingExempt && !subscription.data?.subscription && (
