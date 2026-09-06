@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Eye, HelpCircle, Plus, Save, Send, Trash2, X } from 'lucide-react';
 import { Button, Card, CardHeader, Chip, EmptyState, Field, Skeleton } from '@/components/ui/primitives';
+import { ProLockCard } from '@/components/billing/ProLockCard';
 import { BlockRenderer } from '@/components/blog/BlockRenderer';
 import { useBlog, useCreateBlog, useDeleteBlog, useUpdateBlog } from '@/hooks/useBlogs';
+import { ApiError, api } from '@/lib/api';
 import { parseBlocks, serializeBlocks } from '@/lib/blog-markdown';
 import { cn } from '@/lib/utils';
 import type { BlogKind, BlogRef, Difficulty, Evidence } from '@/lib/types';
@@ -59,6 +62,7 @@ export function BlogEditor() {
   const navigate = useNavigate();
   const editing = Boolean(slug);
   const existing = useBlog(slug);
+  const subscription = useQuery({ queryKey: ['subscription'], queryFn: api.subscription });
 
   const createBlog = useCreateBlog();
   const updateBlog = useUpdateBlog();
@@ -80,6 +84,10 @@ export function BlogEditor() {
   const [loaded, setLoaded] = useState(false);
 
   const blog = existing.data?.blog;
+  const periodValid = !subscription.data?.subscription?.currentPeriodEnd
+    || new Date(subscription.data.subscription.currentPeriodEnd) > new Date();
+  const hasProAccess = Boolean(subscription.data?.billingExempt
+    || (subscription.data?.subscription?.status === 'active' && periodValid));
 
   useEffect(() => {
     if (!editing || !blog || loaded) return;
@@ -134,7 +142,11 @@ export function BlogEditor() {
     setTagDraft('');
   };
 
-  if (editing && existing.isLoading) return <Skeleton className="h-96 w-full rounded-2xl" />;
+  if (subscription.isLoading || (editing && existing.isLoading)) return <Skeleton className="h-96 w-full rounded-2xl" />;
+  if (subscription.isSuccess && !hasProAccess) return <ProLockCard title="Blog publishing is part of Optimus Pro" />;
+  if (editing && existing.error instanceof ApiError && existing.error.status === 402) {
+    return <ProLockCard title="This write-up is part of Optimus Pro" />;
+  }
   if (editing && blog && !blog.isAuthor) {
     return <EmptyState title="You cannot edit this write-up" body="It belongs to another author." />;
   }

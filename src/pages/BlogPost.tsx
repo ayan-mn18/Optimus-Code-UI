@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, Pencil, Sparkles } from 'lucide-react';
+import { ApiError } from '@/lib/api';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
+import { ProLockCard } from '@/components/billing/ProLockCard';
 import { BlockRenderer } from '@/components/blog/BlockRenderer';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { AskedInCompanies } from '@/components/blog/AskedInCompanies';
@@ -31,6 +33,9 @@ export function BlogPost() {
   }
 
   if (query.isError || !query.data) {
+    if (query.error instanceof ApiError && query.error.status === 402) {
+      return <ProLockCard title="This write-up is part of Optimus Pro" />;
+    }
     return (
       <EmptyState
         icon={<Sparkles className="size-6" />}

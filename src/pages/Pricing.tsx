@@ -10,6 +10,7 @@ const FEATURES = [
   'Complete LLD and HLD catalogues',
   'Ten-question Optimus assessments',
   'LLD coding tasks with hidden tests',
+  'Evidence-backed blogs and research write-ups',
   'Streaks, recaps, and progress analytics',
   'DSA stays free for every signed-in account',
 ];

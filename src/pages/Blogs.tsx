@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
+import { ApiError } from '@/lib/api';
 import { Button, Card, Chip, EmptyState, Skeleton } from '@/components/ui/primitives';
+import { ProLockCard } from '@/components/billing/ProLockCard';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { RequestWriteUp } from '@/components/blog/RequestWriteUp';
 import { useBlogs, useMyBlogs } from '@/hooks/useBlogs';
@@ -39,6 +41,7 @@ export function Blogs() {
   const facets = query.data?.facets;
   const totalPages = Math.max(1, Math.ceil((query.data?.total ?? 0) / (query.data?.pageSize ?? 12)));
   const drafts = useMemo(() => (mine.data?.items ?? []).filter((blog) => blog.status === 'draft'), [mine.data]);
+  const isLocked = [query.error, mine.error].some((error) => error instanceof ApiError && error.status === 402);
 
   const filtersActive = kind !== 'all' || topic !== 'all' || company !== 'all' || tag !== 'all' || Boolean(search);
   const resetFilters = () => {
@@ -67,7 +70,9 @@ export function Blogs() {
         </Link>
       </div>
 
-      <RequestWriteUp />
+      {isLocked ? (
+        <ProLockCard title="The Optimus blog library is part of Pro" />
+      ) : <RequestWriteUp />}
 
       {drafts.length > 0 && (
         <Card className="border-warn/25 bg-warn/5 p-4">
@@ -90,7 +95,7 @@ export function Blogs() {
         </Card>
       )}
 
-      <Card className="space-y-3 p-4">
+      {!isLocked && <Card className="space-y-3 p-4">
         <div className="flex flex-wrap gap-2">
           <label className="relative min-w-52 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-dim" />
@@ -160,9 +165,9 @@ export function Blogs() {
             ))}
           </div>
         ) : null}
-      </Card>
+      </Card>}
 
-      {query.isError ? (
+      {isLocked ? null : query.isError ? (
         <Card className="border-bad/30">
           <p className="text-sm font-medium text-bad">Could not load blogs.</p>
           <p className="mt-1 text-xs text-ink-dim">{query.error.message}</p>

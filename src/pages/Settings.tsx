@@ -109,7 +109,7 @@ export function Settings() {
       </Card>
 
       <Card>
-        <CardHeader title="Subscription" hint="DSA is free for every signed-in account. Optimus Pro unlocks LLD and HLD." />
+        <CardHeader title="Subscription" hint="DSA is free for every signed-in account. Optimus Pro unlocks LLD, HLD, and blogs." />
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface/50 px-4 py-3">
           <div>
             <p className="text-sm font-medium text-ink">
