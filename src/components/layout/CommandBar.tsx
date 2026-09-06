@@ -61,21 +61,29 @@ export function CommandBar() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query.trim()), 120);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
   const searchQuery = useQuery({
-    queryKey: ['command-search', query.trim().toLocaleLowerCase()],
-    queryFn: () => api.search(query.trim()),
-    enabled: open && query.trim().length >= 2,
+    queryKey: ['command-search', debouncedQuery.toLocaleLowerCase()],
+    queryFn: () => api.search(debouncedQuery),
+    enabled: open && debouncedQuery.length >= 2,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
     retry: false,
   });
 
+  const hasSearch = query.trim().length >= 2;
   const items = useMemo(() => {
-    if (query.trim().length < 2) return QUICK_ACTIONS;
+    if (!hasSearch) return QUICK_ACTIONS;
+    if (debouncedQuery !== query.trim()) return [];
     return (searchQuery.data?.items ?? []).map(resultItem);
-  }, [query, searchQuery.data?.items]);
+  }, [debouncedQuery, hasSearch, query, searchQuery.data?.items]);
 
   const close = () => {
     setOpen(false);
@@ -177,13 +185,13 @@ export function CommandBar() {
             </div>
 
             <div className="max-h-[min(56vh,28rem)] overflow-y-auto p-2" role="listbox" aria-label="Command results">
-              {query.trim().length >= 2 && searchQuery.isFetching && (
+              {hasSearch && (searchQuery.isFetching || debouncedQuery !== query.trim()) && (
                 <p className="px-3 py-8 text-center text-xs text-ink-dim">Searching the catalogue…</p>
               )}
-              {query.trim().length >= 2 && !searchQuery.isFetching && !items.length && (
+              {hasSearch && debouncedQuery === query.trim() && !searchQuery.isFetching && !items.length && (
                 <p className="px-3 py-8 text-center text-xs text-ink-dim">No matching problems or write-ups.</p>
               )}
-              {query.trim().length < 2 && (
+              {!hasSearch && (
                 <p className="px-3 pb-2 pt-1 text-[10px] uppercase tracking-[0.18em] text-ink-dim">Quick navigation</p>
               )}
               {items.map((item, index) => {
