@@ -19,17 +19,17 @@ const STEPS = [
   {
     icon: Shuffle,
     title: 'Your mix lands every morning',
-    body: 'Choose separate DSA, LLD, and HLD goals. Assignments favor unsolved topics and avoid repetition.',
+    body: 'Start with free DSA practice. Pro members can add LLD and HLD goals with assignments that favor unsolved topics and avoid repetition.',
   },
   {
     icon: CalendarDays,
     title: 'Prove System Design work',
-    body: 'Optimus asks ten fresh questions. LLD attempts can include coding with hidden tests.',
+    body: 'Optimus asks ten fresh questions. Pro LLD attempts can include coding with hidden tests.',
   },
   {
     icon: RotateCcw,
     title: 'Clear every category',
-    body: 'The day turns green only after each configured track is complete. Missed work returns later.',
+    body: 'The day turns green after each configured track is complete. Missed work returns later, while DSA remains free for every signed-in account.',
   },
 ];
 
@@ -109,7 +109,7 @@ export function Landing() {
           </h1>
 
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
-            Optimus Code assigns DSA, LLD, and HLD work each morning. Solve algorithms directly. Prove System Design knowledge through a focused ten-question interview.
+            Sign in and work through the complete DSA library for free. When you are ready to defend design choices, Optimus Pro unlocks LLD and HLD practice, focused ten-question assessments, and coding exercises.
           </p>
 
           <div className="mt-8 max-w-lg">
@@ -212,6 +212,19 @@ export function Landing() {
               </motion.li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="relative mx-auto w-full max-w-4xl px-5 pb-24">
+        <div className="rounded-2xl border border-brand/25 bg-brand/[0.06] p-6 text-center sm:p-8">
+          <p className="text-xs uppercase tracking-[0.18em] text-brand-pale">Optimus Pro</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight">DSA is free. System Design is focused.</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
+            Unlock LLD and HLD for $10/month or $80/year. DoDo handles secure checkout, automatic renewals, invoices, and payment reminders.
+          </p>
+          <Link to="/pricing" className="mt-6 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white">
+            Compare Pro plans
+          </Link>
         </div>
       </section>
 

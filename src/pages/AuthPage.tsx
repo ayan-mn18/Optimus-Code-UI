@@ -10,7 +10,7 @@ import { ApiError } from '@/lib/api';
 import { browserTimezone } from '@/lib/utils';
 
 const HIGHLIGHTS = [
-  { icon: Layers, title: 'DSA, LLD, and HLD', body: 'A unified catalog with separate daily goals for every interview track.' },
+  { icon: Layers, title: 'DSA free for everyone', body: 'Sign in for the complete DSA library. Optimus Pro adds LLD and HLD when you are ready.' },
   { icon: Shuffle, title: 'Your mix arrives daily', body: 'Randomized assignments favor unsolved topics and avoid repetitive practice.' },
   { icon: Flame, title: 'System Design gets verified', body: 'Optimus asks ten questions and runs hidden coding tests before completion.' },
 ];
@@ -89,7 +89,7 @@ export function AuthPage() {
             <span className="gradient-text">The sheet handles itself.</span>
           </h1>
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
-            Optimus Code assigns DSA, LLD, and HLD practice each morning. Clear every category and the day turns green. System Design counts only after Optimus approves it.
+            Optimus Code assigns DSA practice each morning for free. Pro members can add LLD and HLD, then prove System Design choices through verified assessments.
           </p>
 
           <ul className="mt-10 grid gap-3">

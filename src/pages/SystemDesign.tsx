@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, LockKeyhole, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
+import { ApiError } from '@/lib/api';
 import type { Difficulty, Problem } from '@/lib/types';
 
 type SolveStatus = 'all' | 'solved' | 'unsolved';
@@ -59,6 +60,7 @@ export function SystemDesign() {
   }, [pageItems]);
 
   const filtersActive = Boolean(search || topic !== 'all' || difficulty !== 'all' || status !== 'all');
+  const isLocked = query.error instanceof ApiError && query.error.status === 402;
   const resetFilters = () => {
     setSearch('');
     setTopic('all');
@@ -173,7 +175,20 @@ export function SystemDesign() {
         </p>
       )}
 
-      {query.isError ? (
+      {isLocked ? (
+        <Card className="border-brand/30 bg-brand/[0.06] p-8 text-center">
+          <span className="mx-auto grid size-12 place-items-center rounded-2xl border border-brand/30 bg-brand/10 text-brand-pale">
+            <LockKeyhole className="size-5" />
+          </span>
+          <h2 className="mt-5 text-xl font-semibold">{kind} is part of Optimus Pro</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">
+            Your DSA library stays free. Unlock this catalogue, AI assessments, and design coding tasks with a monthly or annual Pro plan.
+          </p>
+          <Link to="/pricing" className="mt-6 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white">
+            View Pro plans
+          </Link>
+        </Card>
+      ) : query.isError ? (
         <Card className="border-bad/30">
           <p className="text-sm font-medium text-bad">Could not load the {kind} catalog.</p>
           <p className="mt-1 text-xs text-ink-dim">{query.error.message}</p>

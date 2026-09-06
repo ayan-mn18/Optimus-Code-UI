@@ -95,15 +95,25 @@ export function Settings() {
       </Card>
 
       <Card>
-        <CardHeader title="Subscription" hint="Optimus Pro includes System Design assessments and coding exercises." />
+        <CardHeader title="Subscription" hint="DSA is free for every signed-in account. Optimus Pro unlocks LLD and HLD." />
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface/50 px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-ink">{subscription.data?.subscription ? `${subscription.data.subscription.plan} plan` : 'No active plan'}</p>
-            <p className="mt-1 text-xs capitalize text-ink-dim">{subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}</p>
+            <p className="text-sm font-medium text-ink">
+              {subscription.data?.billingExempt
+                ? 'Complimentary Pro access'
+                : subscription.data?.subscription
+                  ? `${subscription.data.subscription.plan} plan`
+                  : 'DSA free · Pro not active'}
+            </p>
+            <p className="mt-1 text-xs capitalize text-ink-dim">
+              {subscription.data?.billingExempt ? 'Legacy account exception' : subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}
+            </p>
           </div>
-          <Link to="/pricing" className="inline-flex h-9 items-center rounded-lg border border-line-strong bg-elevated px-3 text-xs font-medium text-ink-muted hover:border-brand/50 hover:text-ink">
-            View pricing
-          </Link>
+          {!subscription.data?.billingExempt && (
+            <Link to="/pricing" className="inline-flex h-9 items-center rounded-lg border border-line-strong bg-elevated px-3 text-xs font-medium text-ink-muted hover:border-brand/50 hover:text-ink">
+              View pricing
+            </Link>
+          )}
         </div>
       </Card>
 

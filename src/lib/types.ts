@@ -17,6 +17,7 @@ export interface User {
   timezone: string;
   pictureUrl: string | null;
   authProvider: 'password' | 'google';
+  billingExempt: boolean;
   avatarSeed: string;
   showOnLeaderboard: boolean;
   createdAt: string;

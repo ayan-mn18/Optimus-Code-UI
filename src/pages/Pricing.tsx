@@ -7,11 +7,11 @@ import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
 
 const FEATURES = [
-  'Daily DSA, LLD, and HLD assignments',
-  'Complete System Design catalog',
+  'Complete LLD and HLD catalogues',
   'Ten-question Optimus assessments',
   'LLD coding tasks with hidden tests',
   'Streaks, recaps, and progress analytics',
+  'DSA stays free for every signed-in account',
 ];
 
 export function Pricing() {
@@ -23,6 +23,10 @@ export function Pricing() {
   const checkout = async (plan: 'monthly' | 'annual') => {
     if (!user) {
       navigate('/login', { state: { from: '/pricing' } });
+      return;
+    }
+    if (user.billingExempt) {
+      navigate('/system-design/lld');
       return;
     }
     setLoading(plan);
@@ -46,9 +50,15 @@ export function Pricing() {
       </header>
 
       <main className="mx-auto max-w-5xl pt-12 text-center">
-        <p className="text-xs uppercase tracking-[0.18em] text-brand-pale">Simple pricing</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Practice every track.<br /><span className="gradient-text">Prove every solution.</span></h1>
-        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-muted">One Optimus plan includes DSA, System Design assessments, coding exercises, and progress tracking.</p>
+        <p className="text-xs uppercase tracking-[0.18em] text-brand-pale">DSA free · System Design Pro</p>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Keep solving DSA.<br /><span className="gradient-text">Defend every design.</span></h1>
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-muted">Sign in to practice the complete DSA library for free. Optimus Pro unlocks LLD and HLD catalogues, assessments, and coding exercises with secure recurring billing through DoDo.</p>
+
+        {user?.billingExempt && (
+          <div className="mx-auto mt-7 max-w-xl rounded-xl border border-good/30 bg-good/10 px-4 py-3 text-sm text-good">
+            Your account has complimentary Pro access. No payment is required.
+          </div>
+        )}
 
         <div className="mx-auto mt-12 grid max-w-3xl gap-4 md:grid-cols-2">
           <PlanCard title="Monthly" price="$10" suffix="per month" loading={loading === 'monthly'} onChoose={() => checkout('monthly')} />
@@ -58,7 +68,7 @@ export function Pricing() {
         {error && <p role="alert" className="mx-auto mt-5 max-w-xl rounded-xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">{error}</p>}
 
         <div className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 text-xs text-ink-dim">
-          <ShieldCheck className="size-4 text-good" /> Secure hosted checkout through Dodo Payments. Taxes display before payment.
+          <ShieldCheck className="size-4 text-good" /> Secure hosted checkout through DoDo Payments. Automatic renewal reminders and invoices are emailed to you.
         </div>
       </main>
     </div>

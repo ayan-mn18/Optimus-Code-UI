@@ -175,7 +175,7 @@ export const api = {
       { method: 'POST' },
     ),
 
-  subscription: () => request<{ subscription: Subscription | null }>('/api/billing/subscription'),
+  subscription: () => request<{ subscription: Subscription | null; billingExempt: boolean }>('/api/billing/subscription'),
 
   createCheckout: (plan: 'monthly' | 'annual') =>
     request<{ checkoutUrl: string }>('/api/billing/checkout', { method: 'POST', ...body({ plan }) }),

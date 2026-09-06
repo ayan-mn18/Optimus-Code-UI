@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, Rocket } from 'lucide-react';
 import { Button, Card } from '@/components/ui/primitives';
@@ -13,10 +13,14 @@ const TARGETS: { value: DailyGoals; label: string; body: string; recommended?: b
   { value: { DSA: 3, LLD: 1, HLD: 1 }, label: 'Standard', body: 'Three DSA, one LLD, and one HLD.', recommended: true },
   { value: { DSA: 5, LLD: 2, HLD: 1 }, label: 'Sprint', body: 'Five DSA, two LLD, and one HLD.' },
 ];
+const FREE_TARGETS: { value: DailyGoals; label: string; body: string; recommended?: boolean }[] = [
+  { value: { DSA: 3, LLD: 0, HLD: 0 }, label: 'DSA focus', body: 'Three DSA problems. Free for every signed-in account.', recommended: true },
+];
 
 export function Onboarding() {
-  const { enrollment } = useAuth();
-  const [goals, setGoals] = useState<DailyGoals>({ DSA: 3, LLD: 1, HLD: 1 });
+  const { enrollment, user } = useAuth();
+  const options = user?.billingExempt ? TARGETS : FREE_TARGETS;
+  const [goals, setGoals] = useState<DailyGoals>(options[0].value);
   const enroll = useEnroll();
   const navigate = useNavigate();
 
@@ -43,14 +47,16 @@ export function Onboarding() {
             Join the <span className="gradient-text">daily challenge</span>
           </h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
-            Pick a daily mix. Optimus assigns DSA, LLD, and HLD work across different topics. Complete every category before midnight to keep the day green.
+            {user?.billingExempt
+              ? 'Pick a daily mix across DSA, LLD, and HLD. Complete every category before midnight to keep the day green.'
+              : 'Start with a focused DSA routine. DSA is free for every signed-in account; LLD and HLD unlock with Optimus Pro.'}
           </p>
         </div>
 
         <Card className="space-y-3">
           <fieldset>
             <legend className="sr-only">Daily target</legend>
-            {TARGETS.map((option) => {
+            {options.map((option) => {
               const selected = goals.DSA === option.value.DSA && goals.LLD === option.value.LLD && goals.HLD === option.value.HLD;
               return (
                 <label
@@ -95,6 +101,12 @@ export function Onboarding() {
               );
             })}
           </fieldset>
+
+          {!user?.billingExempt && (
+            <p className="pt-2 text-center text-xs text-ink-dim">
+              Want LLD and HLD in your daily mix? <Link to="/pricing" className="text-brand-pale hover:underline">View Pro plans</Link>.
+            </p>
+          )}
 
           <Button size="lg" className="w-full" loading={enroll.isPending} onClick={start}>
             Start the challenge
