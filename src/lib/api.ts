@@ -19,6 +19,7 @@ import type {
   BlogDetailResponse,
   BlogDraft,
   BlogListResponse,
+  ResearchJob,
 } from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
@@ -219,6 +220,15 @@ export const api = {
   deleteBlog: (id: string) => request<void>(`/api/blogs/${id}`, { method: 'DELETE' }),
 
   likeBlog: (id: string) => request<{ liked: boolean; likes: number }>(`/api/blogs/${id}/like`, { method: 'POST' }),
+
+  startResearch: (topic: string) =>
+    request<{ job: ResearchJob }>('/api/research', { method: 'POST', ...body({ request: topic }) }),
+
+  researchJob: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`),
+
+  researchJobs: () => request<{ items: ResearchJob[] }>('/api/research'),
+
+  cancelResearch: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`, { method: 'DELETE' }),
 
   waitlistCount: () => request<{ count: number }>('/api/waitlist'),
 

@@ -380,3 +380,24 @@ export interface BlogDraft {
   evidence: Evidence[];
   refs: BlogRef[];
 }
+
+/* -------------------------------------------------------------------------- */
+/* Research jobs                                                               */
+/* -------------------------------------------------------------------------- */
+
+export type ResearchStatus = 'queued' | 'running' | 'needs_review' | 'published' | 'failed';
+
+export interface ResearchJob {
+  id: string;
+  request: string;
+  status: ResearchStatus;
+  stage: string | null;
+  progress: { at: string; message: string }[];
+  slug: string | null;
+  blogId: string | null;
+  error: string | null;
+  modelVersion: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+}

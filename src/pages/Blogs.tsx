@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
 import { Button, Card, Chip, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { BlogCard } from '@/components/blog/BlogCard';
+import { RequestWriteUp } from '@/components/blog/RequestWriteUp';
 import { useBlogs, useMyBlogs } from '@/hooks/useBlogs';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +66,8 @@ export function Blogs() {
           <Button icon={<PenLine className="size-4" />}>Write a blog</Button>
         </Link>
       </div>
+
+      <RequestWriteUp />
 
       {drafts.length > 0 && (
         <Card className="border-warn/25 bg-warn/5 p-4">
