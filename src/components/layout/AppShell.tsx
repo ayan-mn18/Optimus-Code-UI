@@ -7,6 +7,7 @@ import { useToday } from '@/hooks/useChallenge';
 import { useMarkMilestoneViewed, usePendingMilestone } from '@/hooks/useMilestone';
 import { MilestoneModal } from '@/components/milestone/MilestoneModal';
 import { Logo } from './Logo';
+import { CommandBar } from './CommandBar';
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -61,6 +62,7 @@ export function AppShell() {
 
   return (
     <>
+      <CommandBar />
       {milestone && (
         <MilestoneModal
           recap={milestone}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
@@ -12,17 +12,22 @@ const PAGE_SIZES = [10, 20, 40] as const;
 
 export function SystemDesign() {
   const params = useParams();
+  const [searchParams] = useSearchParams();
   const kind = params.kind?.toLowerCase() === 'hld' ? 'HLD' : 'LLD';
   const query = useSystemDesign(kind);
   const createAssessment = useCreateAssessment();
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => searchParams.get('search') ?? '');
   const [topic, setTopic] = useState('all');
   const [difficulty, setDifficulty] = useState<Difficulty | 'all'>('all');
   const [status, setStatus] = useState<SolveStatus>('all');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(20);
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') ?? '');
+  }, [searchParams]);
 
   useEffect(() => {
     setPage(1);

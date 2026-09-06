@@ -62,6 +62,22 @@ export interface ProblemListResponse {
   items: Problem[];
   total: number;
 }
+
+export interface SearchResult {
+  type: 'problem' | 'blog';
+  id: string;
+  slug: string;
+  title: string;
+  kind: ProblemKind | BlogKind;
+  topic: string | null;
+  subtopic: string | null;
+  difficulty: Difficulty | null;
+}
+
+export interface SearchResponse {
+  items: SearchResult[];
+}
+
 export interface SystemDesignListResponse {
   kind: 'LLD' | 'HLD';
   items: Problem[];

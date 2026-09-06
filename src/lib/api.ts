@@ -20,6 +20,7 @@ import type {
   BlogDraft,
   BlogListResponse,
   ResearchJob,
+  SearchResponse,
 } from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
@@ -227,6 +228,8 @@ export const api = {
   researchJob: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`),
 
   researchJobs: () => request<{ items: ResearchJob[] }>('/api/research'),
+
+  search: (query: string) => request<SearchResponse>(`/api/search?q=${encodeURIComponent(query)}`),
 
   cancelResearch: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`, { method: 'DELETE' }),
 

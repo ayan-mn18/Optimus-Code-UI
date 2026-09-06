@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { Button, Card, EmptyState, Skeleton, Chip } from '@/components/ui/primitives';
 import { ProblemRow } from '@/components/dashboard/ProblemRow';
 import { useProblems, useToggleSolve } from '@/hooks/useChallenge';
@@ -18,11 +19,17 @@ const STATUSES: { value: SolveStatus; label: string }[] = [
 ];
 
 export function Problems() {
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') ?? '');
   const [topic, setTopic] = useState('all');
   const [difficulty, setDifficulty] = useState<Difficulty | 'all'>('all');
   const [status, setStatus] = useState<SolveStatus>('all');
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') ?? '');
+    setPage(1);
+  }, [searchParams]);
 
   const { data, isLoading } = useProblems();
   const toggle = useToggleSolve();
