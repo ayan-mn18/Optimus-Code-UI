@@ -44,7 +44,10 @@ export function RequestWriteUp() {
   const job = data?.job;
   const running = job?.status === 'queued' || job?.status === 'running';
   const cleanQuestions = questions.map((question) => question.trim()).filter(Boolean);
-  const canSubmit = topic.trim().length >= 4 && goal.trim().length >= 20 && cleanQuestions.length > 0;
+  const canSubmit = topic.trim().length >= 4
+    && goal.trim().length >= 20
+    && cleanQuestions.length > 0
+    && cleanQuestions.every((question) => question.length >= 8);
 
   const submit = async () => {
     if (!canSubmit) return;
