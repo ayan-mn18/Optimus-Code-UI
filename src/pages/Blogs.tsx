@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
+import { Bookmark, ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
 import { ApiError } from '@/lib/api';
 import { Button, Card, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { ProLockCard } from '@/components/billing/ProLockCard';
@@ -21,6 +21,7 @@ export function Blogs() {
   const [topic, setTopic] = useState('all');
   const [company, setCompany] = useState('all');
   const [tag, setTag] = useState('all');
+  const [savedOnly, setSavedOnly] = useState(false);
   const [sort, setSort] = useState<(typeof SORTS)[number]['value']>('recent');
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -35,7 +36,7 @@ export function Blogs() {
     setPage(1);
   }, [company, debounced, kind, sort, tag, topic]);
 
-  const query = useBlogs({ kind, topic, company, tag, sort, search: debounced, page });
+  const query = useBlogs({ kind, topic, company, tag, sort, search: debounced, page, saved: savedOnly || undefined });
   const mine = useMyBlogs();
 
   const facets = query.data?.facets;
@@ -43,12 +44,13 @@ export function Blogs() {
   const drafts = useMemo(() => (mine.data?.items ?? []).filter((blog) => blog.status === 'draft'), [mine.data]);
   const isLocked = [query.error, mine.error].some((error) => error instanceof ApiError && error.status === 402);
 
-  const filtersActive = kind !== 'all' || topic !== 'all' || company !== 'all' || tag !== 'all' || Boolean(search);
+  const filtersActive = savedOnly || kind !== 'all' || topic !== 'all' || company !== 'all' || tag !== 'all' || Boolean(search);
   const resetFilters = () => {
     setKind('all');
     setTopic('all');
     setCompany('all');
     setTag('all');
+    setSavedOnly(false);
     setSearch('');
   };
 
@@ -65,9 +67,18 @@ export function Blogs() {
             Write your own, or read the ones already published.
           </p>
         </div>
-        <Link to="/blogs/new">
-          <Button icon={<PenLine className="size-4" />}>Write a blog</Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={savedOnly ? 'primary' : 'outline'}
+            icon={<Bookmark className="size-4" />}
+            onClick={() => setSavedOnly((current) => !current)}
+          >
+            {savedOnly ? 'Showing saved' : 'Saved'}
+          </Button>
+          <Link to="/blogs/new">
+            <Button icon={<PenLine className="size-4" />}>Write a blog</Button>
+          </Link>
+        </div>
       </div>
 
       {isLocked ? (
@@ -192,8 +203,8 @@ export function Blogs() {
       ) : (
         <EmptyState
           icon={<Sparkles className="size-6" />}
-          title={filtersActive ? 'Nothing matches' : 'No write-ups yet'}
-          body={filtersActive ? 'Try another company or topic.' : 'Be the first — publish one from your own notes.'}
+          title={savedOnly ? 'No saved write-ups yet' : filtersActive ? 'Nothing matches' : 'No write-ups yet'}
+          body={savedOnly ? 'Use Save on an article to keep it in your reading list.' : filtersActive ? 'Try another company or topic.' : 'Be the first — publish one from your own notes.'}
         />
       )}
     </div>

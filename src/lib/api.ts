@@ -19,6 +19,7 @@ import type {
   BlogDetailResponse,
   BlogDraft,
   BlogListResponse,
+  ResearchBrief,
   ResearchJob,
   SearchResponse,
 } from './types';
@@ -201,6 +202,7 @@ export const api = {
     sort?: string;
     page?: number;
     pageSize?: number;
+    saved?: boolean;
   } = {}) => {
     const query = new URLSearchParams(
       Object.entries(params)
@@ -223,12 +225,16 @@ export const api = {
 
   likeBlog: (id: string) => request<{ liked: boolean; likes: number }>(`/api/blogs/${id}/like`, { method: 'POST' }),
 
-  startResearch: (topic: string) =>
-    request<{ job: ResearchJob }>('/api/research', { method: 'POST', ...body({ request: topic }) }),
+  bookmarkBlog: (id: string) => request<{ bookmarked: boolean }>(`/api/blogs/${id}/bookmark`, { method: 'POST' }),
+
+  startResearch: (brief: ResearchBrief) =>
+    request<{ job: ResearchJob }>('/api/research', { method: 'POST', ...body(brief) }),
 
   researchJob: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`),
 
   researchJobs: () => request<{ items: ResearchJob[] }>('/api/research'),
+
+  researchStatus: () => request<{ available: boolean }>('/api/research/status'),
 
   search: (query: string) => request<SearchResponse>(`/api/search?q=${encodeURIComponent(query)}`),
 

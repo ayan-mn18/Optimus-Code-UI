@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { ResearchJob } from '@/lib/types';
+import type { ResearchBrief, ResearchJob } from '@/lib/types';
 
 const SETTLED: ResearchJob['status'][] = ['published', 'needs_review', 'failed'];
 
 export function useStartResearch() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (topic: string) => api.startResearch(topic),
+    mutationFn: (brief: ResearchBrief) => api.startResearch(brief),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['research'] }),
   });
+}
+
+export function useResearchStatus() {
+  return useQuery({ queryKey: ['research', 'status'], queryFn: api.researchStatus, staleTime: 60_000 });
 }
 
 /**

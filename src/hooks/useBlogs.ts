@@ -10,6 +10,7 @@ export interface BlogFilters {
   search?: string;
   sort?: string;
   page?: number;
+  saved?: boolean;
 }
 
 export function useBlogs(filters: BlogFilters) {
@@ -93,6 +94,40 @@ export function useToggleBlogLike() {
       queryClient.setQueriesData<BlogListResponse>({ queryKey: ['blogs'] }, (current) =>
         current
           ? { ...current, items: current.items.map((item) => (item.id === blog.id ? { ...item, liked, likes } : item)) }
+          : current);
+    },
+  });
+}
+
+export function useToggleBlogBookmark() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (blog: Pick<Blog, 'id' | 'slug'>) => api.bookmarkBlog(blog.id),
+    onMutate: async (blog) => {
+      await queryClient.cancelQueries({ queryKey: ['blog', blog.slug] });
+      const previous = queryClient.getQueryData<BlogDetailResponse>(['blog', blog.slug]);
+      if (previous) {
+        queryClient.setQueryData<BlogDetailResponse>(['blog', blog.slug], {
+          ...previous,
+          blog: { ...previous.blog, bookmarked: !previous.blog.bookmarked },
+        });
+      }
+      queryClient.setQueriesData<BlogListResponse>({ queryKey: ['blogs'] }, (current) =>
+        current
+          ? { ...current, items: current.items.map((item) => (item.id === blog.id ? { ...item, bookmarked: !item.bookmarked } : item)) }
+          : current);
+      return { previous };
+    },
+    onError: (_error, blog, context) => {
+      if (context?.previous) queryClient.setQueryData(['blog', blog.slug], context.previous);
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+    },
+    onSuccess: ({ bookmarked }, blog) => {
+      queryClient.setQueryData<BlogDetailResponse>(['blog', blog.slug], (current) =>
+        current ? { ...current, blog: { ...current.blog, bookmarked } } : current);
+      queryClient.setQueriesData<BlogListResponse>({ queryKey: ['blogs'] }, (current) =>
+        current
+          ? { ...current, items: current.items.map((item) => (item.id === blog.id ? { ...item, bookmarked } : item)) }
           : current);
     },
   });

@@ -356,6 +356,7 @@ export interface Blog {
   views: number;
   likes: number;
   liked: boolean;
+  bookmarked: boolean;
   isAuthor: boolean;
   publishedAt: string | null;
   createdAt: string;
@@ -404,9 +405,22 @@ export interface BlogDraft {
 
 export type ResearchStatus = 'queued' | 'running' | 'needs_review' | 'published' | 'failed';
 
+export type ResearchAudience = 'beginner' | 'intermediate' | 'interview' | 'senior';
+export type ResearchFormat = 'interview-guide' | 'deep-dive' | 'decision-guide' | 'comparison';
+
+export interface ResearchBrief {
+  topic: string;
+  goal: string;
+  audience: ResearchAudience;
+  format: ResearchFormat;
+  questions: string[];
+  constraints?: string;
+}
+
 export interface ResearchJob {
   id: string;
   request: string;
+  brief: ResearchBrief;
   status: ResearchStatus;
   stage: string | null;
   progress: { at: string; message: string }[];

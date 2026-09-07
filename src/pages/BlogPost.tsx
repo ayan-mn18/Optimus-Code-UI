@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Clock, Eye, Heart, Pencil, Sparkles } from 'lucide-react';
+import { ArrowLeft, Bookmark, Clock, Eye, Heart, Pencil, Sparkles } from 'lucide-react';
 import { ApiError } from '@/lib/api';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { ProLockCard } from '@/components/billing/ProLockCard';
@@ -8,7 +8,7 @@ import { TableOfContents } from '@/components/blog/TableOfContents';
 import { AskedInCompanies } from '@/components/blog/AskedInCompanies';
 import { ReferenceList } from '@/components/blog/ReferenceList';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { useBlog, useToggleBlogLike } from '@/hooks/useBlogs';
+import { useBlog, useToggleBlogBookmark, useToggleBlogLike } from '@/hooks/useBlogs';
 import { cn, formatDate } from '@/lib/utils';
 
 const ORIGIN_LABEL = {
@@ -21,6 +21,7 @@ export function BlogPost() {
   const { slug } = useParams();
   const query = useBlog(slug);
   const like = useToggleBlogLike();
+  const bookmark = useToggleBlogBookmark();
 
   if (query.isLoading) {
     return (
@@ -82,6 +83,15 @@ export function BlogPost() {
                     <Button size="sm" variant="outline" icon={<Pencil className="size-3.5" />}>Edit</Button>
                   </Link>
                 )}
+                <Button
+                  size="sm"
+                  variant={blog.bookmarked ? 'primary' : 'outline'}
+                  onClick={() => bookmark.mutate({ id: blog.id, slug: blog.slug })}
+                  loading={bookmark.isPending}
+                  icon={<Bookmark className={cn('size-3.5', blog.bookmarked && 'fill-current')} />}
+                >
+                  {blog.bookmarked ? 'Saved' : 'Save'}
+                </Button>
                 <Button
                   size="sm"
                   variant={blog.liked ? 'primary' : 'outline'}
