@@ -1,6 +1,6 @@
 import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CalendarDays, RotateCcw, Shuffle, Youtube, ExternalLink, Layers } from 'lucide-react';
+import { CalendarDays, RotateCcw, Shuffle, Youtube, ExternalLink } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { HeroScene } from '@/components/landing/HeroScene';
 import { TiltCard } from '@/components/landing/TiltCard';
@@ -88,21 +88,16 @@ export function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-3 py-1 text-xs text-ink-muted backdrop-blur">
-            <Layers className="size-3.5 text-brand" />
-            DSA + LLD + HLD, one daily system
-          </span>
-
           <h1 className="mt-5 text-[clamp(2.1rem,4.4vw,3.4rem)] font-semibold leading-[1.06] tracking-tight">
-            Three tracks.
+            Daily practice for DSA.
             <br />
-            One daily system.
+            LLD and HLD assessments.
             <br />
-            <span className="gradient-text">Every solution defended.</span>
+            <span className="gradient-text">Progress you can prove.</span>
           </h1>
 
           <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-muted">
-            Sign in and work through the complete DSA library for free. When you are ready to defend design choices, Optimus Pro unlocks LLD and HLD practice, focused ten-question assessments, and coding exercises.
+            Sign in and work through the complete DSA library for free. When you are ready to test your system-design skills, Optimus Pro unlocks LLD and HLD assessments, focused ten-question tests, and coding exercises.
           </p>
 
           <Link to="/login" className="mt-8 inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white shadow-[0_10px_30px_-12px] shadow-brand-strong/80 transition hover:brightness-110">
