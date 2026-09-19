@@ -7,12 +7,14 @@ import {
   Gauge, ListChecks, LockKeyhole, Play, ShieldCheck, Terminal, WifiOff, XCircle,
 } from 'lucide-react';
 import { Button, Card, Spinner } from '@/components/ui/primitives';
+import { BlockRenderer } from '@/components/blog/BlockRenderer';
 import { Mermaid } from '@/components/blog/Mermaid';
 import {
   useAbandonAssessment, useAssessment, useCreateAssessment, useRunAssessmentAnswer,
   useSaveAssessmentAnswer, useSubmitAssessment,
 } from '@/hooks/useSystemDesign';
 import { cn } from '@/lib/utils';
+import { parseBlocks } from '@/lib/blog-markdown';
 import { isChoiceAnswer } from '@/lib/types';
 import type {
   AssessmentAnswer, AssessmentAttempt, AssessmentQuestion, AssessmentReviewItem,
@@ -275,7 +277,7 @@ export function OptimusAssessment() {
         </aside>
 
         <main className="min-w-0 overflow-y-auto px-4 py-7 sm:px-8 lg:px-10 lg:py-9">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-[1440px]">
             {!attempt.generationComplete && (
               <div className="mb-5 flex items-center gap-2 rounded-xl border border-brand/25 bg-brand/10 px-3 py-2 text-xs text-brand-pale">
                 <Spinner className="size-3.5" />
@@ -485,6 +487,7 @@ function CodePane({ question, answer, defaultLanguage, onChange, onRun, running,
   const source = saved?.source ?? question.starters[language] ?? '';
   const languageChoice = question.languages.find((choice) => choice.id === language);
   const monaco = languageChoice?.monaco ?? 'python';
+  const statementBlocks = useMemo(() => parseBlocks(question.statement), [question.statement]);
 
   // Switching language starts from that language's skeleton, unless the
   // student has already written something in it.
@@ -498,10 +501,10 @@ function CodePane({ question, answer, defaultLanguage, onChange, onRun, running,
         {question.minutes && <span className="rounded-full border border-line bg-surface px-2 py-0.5">~{question.minutes} min</span>}
       </div>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(20rem,0.82fr)_minmax(0,1.18fr)]">
         <div className="min-w-0 space-y-4">
-          <Card className="prose-optimus max-h-[32rem] overflow-y-auto">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-muted">{question.statement}</p>
+          <Card className="question-markdown max-h-[36rem] overflow-y-auto">
+            <BlockRenderer blocks={statementBlocks} />
           </Card>
 
           <Card>
@@ -563,7 +566,7 @@ function CodePane({ question, answer, defaultLanguage, onChange, onRun, running,
             </div>
 
             <Editor
-              height="30rem"
+              height="min(38rem, 68vh)"
               theme="vs-dark"
               language={monaco}
               value={source}
