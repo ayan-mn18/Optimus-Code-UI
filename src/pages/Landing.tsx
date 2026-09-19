@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { CalendarDays, RotateCcw, Shuffle, Youtube, ExternalLink, Layers } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
 import { HeroScene } from '@/components/landing/HeroScene';
-import { WaitlistForm } from '@/components/landing/WaitlistForm';
 import { TiltCard } from '@/components/landing/TiltCard';
 import { useTilt } from '@/components/landing/useTilt';
 import { useAuth } from '@/store/auth';
@@ -70,12 +69,6 @@ export function Landing() {
         <Logo />
         <nav className="flex items-center gap-2">
           <Link
-            to="/pricing"
-            className="rounded-xl px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
-          >
-            Pricing
-          </Link>
-          <Link
             to="/login"
             className="rounded-xl px-4 py-2 text-sm text-ink-muted transition-colors hover:text-ink"
           >
@@ -112,9 +105,9 @@ export function Landing() {
             Sign in and work through the complete DSA library for free. When you are ready to defend design choices, Optimus Pro unlocks LLD and HLD practice, focused ten-question assessments, and coding exercises.
           </p>
 
-          <div className="mt-8 max-w-lg">
-            <WaitlistForm />
-          </div>
+          <Link to="/login" className="mt-8 inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white shadow-[0_10px_30px_-12px] shadow-brand-strong/80 transition hover:brightness-110">
+            Sign in to start
+          </Link>
 
         </motion.div>
 
@@ -234,11 +227,11 @@ export function Landing() {
           Start the streak <span className="gradient-text">tomorrow morning</span>
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
-          Join the waitlist and we&rsquo;ll open your seat with the first five waiting.
+          Sign in to start your first daily practice set.
         </p>
-        <div className="mx-auto mt-7 max-w-md">
-          <WaitlistForm compact />
-        </div>
+        <Link to="/login" className="mt-7 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white shadow-[0_10px_30px_-12px] shadow-brand-strong/80 transition hover:brightness-110">
+          Sign in
+        </Link>
       </section>
 
       <footer className="relative border-t border-line">

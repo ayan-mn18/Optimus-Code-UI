@@ -24,6 +24,7 @@ import {
   type CommandSearchRecord,
 } from '@/lib/commandSearch';
 import { cn } from '@/lib/utils';
+import { ReportProblem } from '@/components/feedback/ReportProblem';
 
 interface CommandItem {
   id: string;
@@ -221,18 +222,21 @@ export function CommandBar() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="group fixed bottom-20 right-4 z-30 inline-flex items-center gap-2 rounded-full border border-line-strong bg-card/95 px-3 py-2 text-xs text-ink-muted shadow-xl shadow-black/20 backdrop-blur-xl transition hover:border-brand/50 hover:text-ink lg:bottom-6 lg:right-8"
-        aria-label="Open command bar"
-      >
-        <Search className="size-3.5 text-brand" />
-        <span className="hidden sm:inline">Search Optimus</span>
-        <kbd className="hidden items-center gap-0.5 rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] text-ink-dim sm:inline-flex">
-          <Command className="size-2.5" />K
-        </kbd>
-      </button>
+      <div className="fixed bottom-20 right-4 z-30 flex items-center gap-2 lg:bottom-6 lg:right-8">
+        <ReportProblem />
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group inline-flex items-center gap-2 rounded-full border border-line-strong bg-card/95 px-3 py-2 text-xs text-ink-muted shadow-xl shadow-black/20 backdrop-blur-xl transition hover:border-brand/50 hover:text-ink"
+          aria-label="Open command bar"
+        >
+          <Search className="size-3.5 text-brand" />
+          <span className="hidden sm:inline">Search Optimus</span>
+          <kbd className="hidden items-center gap-0.5 rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[10px] text-ink-dim sm:inline-flex">
+            <Command className="size-2.5" />K
+          </kbd>
+        </button>
+      </div>
 
       {open && (
         <div

@@ -260,6 +260,14 @@ export const api = {
 
   searchIndex: () => request<SearchIndexResponse>('/api/search/index'),
 
+  reportProblem: (data: {
+    message: string;
+    steps?: string;
+    pageUrl?: string;
+    userAgent?: string;
+    screenshot?: { name: string; type: 'image/png' | 'image/jpeg' | 'image/webp'; dataUrl: string };
+  }) => request<{ sent: boolean }>('/api/reports', { method: 'POST', ...body(data) }),
+
   cancelResearch: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`, { method: 'DELETE' }),
 
   waitlistCount: () => request<{ count: number }>('/api/waitlist'),
