@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, LockKeyhole, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Code2, ListChecks, LockKeyhole, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
@@ -60,6 +60,7 @@ export function SystemDesign() {
   }, [pageItems]);
 
   const filtersActive = Boolean(search || topic !== 'all' || difficulty !== 'all' || status !== 'all');
+  const codingCount = query.data?.items.filter((problem) => problem.coding_enabled).length ?? 0;
   const isLocked = query.error instanceof ApiError && query.error.status === 402;
   const resetFilters = () => {
     setSearch('');
@@ -69,7 +70,7 @@ export function SystemDesign() {
   };
 
   const startAssessment = async (problem: Problem) => {
-    const response = await createAssessment.mutateAsync(problem.id);
+    const response = await createAssessment.mutateAsync({ problemId: problem.id });
     navigate(`/optimus/${response.attempt.id}`);
   };
 
@@ -86,12 +87,14 @@ export function SystemDesign() {
     <div className="space-y-6">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wider text-ink-dim">System Design · {kind}</p>
+          <p className="text-xs uppercase tracking-wider text-ink-dim">{kind === 'LLD' ? 'Low-level design workbench' : 'High-level architecture review'} · {kind}</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Build systems. <span className="gradient-text">Defend every choice.</span>
+            {kind === 'LLD' ? <>Model objects. <span className="gradient-text">Prove behavior.</span></> : <>Map systems. <span className="gradient-text">Defend every trade-off.</span></>}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
-            Study each concept, then pass a ten-question Optimus assessment. Only passed assessments count as complete.
+            {kind === 'LLD'
+              ? 'Study the design, then work through an Optimus paper. Coding-enabled problems open a Judge0-backed workspace with public and hidden tests.'
+              : 'Study the architecture, then defend it in a focused Optimus paper. Questions cover the decisions senior interviewers probe most.'}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -107,6 +110,32 @@ export function SystemDesign() {
           </Card>
         </div>
       </div>
+
+      <Card className="overflow-hidden p-0">
+        <div className="flex flex-col gap-4 border-b border-line bg-linear-to-r from-brand-strong/10 via-transparent to-accent/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-xl border border-brand/25 bg-brand/10 text-brand-pale">
+              {kind === 'LLD' ? <Code2 className="size-5" /> : <ListChecks className="size-5" />}
+            </span>
+            <div>
+              <p className="text-xs font-semibold">Assessment format</p>
+              <p className="mt-1 text-xs text-ink-muted">
+                {kind === 'LLD' ? 'Design questions plus coding on selected interview problems.' : 'Ten architecture questions with an 80% pass mark.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 text-[10px]">
+            <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-ink-muted">80% to pass</span>
+            {kind === 'LLD' && <span className="rounded-full border border-brand/25 bg-brand/10 px-2.5 py-1 text-brand-pale">{codingCount} Judge0 coding {codingCount === 1 ? 'problem' : 'problems'}</span>}
+            {kind === 'HLD' && <span className="rounded-full border border-accent/25 bg-accent/[0.07] px-2.5 py-1 text-accent">Architecture track</span>}
+          </div>
+        </div>
+        <div className="grid gap-3 p-4 text-xs text-ink-dim sm:grid-cols-3">
+          <div><p className="text-ink-muted">1. Study</p><p className="mt-1">Read the prompt and linked resources.</p></div>
+          <div><p className="text-ink-muted">2. Defend</p><p className="mt-1">Answer a fresh paper built for this problem.</p></div>
+          <div><p className="text-ink-muted">3. Complete</p><p className="mt-1">A passed paper protects your daily goal.</p></div>
+        </div>
+      </Card>
 
       <Card className="space-y-3 p-4">
         <div className="flex flex-wrap gap-2">
@@ -230,6 +259,7 @@ export function SystemDesign() {
                             {problem.subtopic && <Chip>{problem.subtopic}</Chip>}
                             <DifficultyBadge difficulty={problem.difficulty} />
                             {problem.blogSlug && <Chip className="border-brand/25 bg-brand/10 text-brand-pale">Write-up</Chip>}
+                            {problem.coding_enabled && <Chip className="border-accent/25 bg-accent/[0.07] text-accent"><Code2 className="size-3" /> Judge0 coding</Chip>}
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -258,11 +288,11 @@ export function SystemDesign() {
                           <Button
                             size="sm"
                             variant={problem.solved ? 'outline' : 'primary'}
-                            loading={createAssessment.isPending && createAssessment.variables === problem.id}
+                            loading={createAssessment.isPending && createAssessment.variables?.problemId === problem.id}
                             onClick={() => startAssessment(problem)}
                             icon={<Sparkles className="size-3.5" />}
                           >
-                            {problem.solved ? 'Review' : 'Start Optimus'}
+                            {problem.solved ? 'Review' : problem.coding_enabled ? 'Start coding paper' : 'Start Optimus'}
                           </Button>
                         </div>
                       </li>

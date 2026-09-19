@@ -227,29 +227,129 @@ export interface MilestoneRecap {
 }
 
 export type AssessmentStatus = 'generating' | 'active' | 'grading' | 'passed' | 'failed';
-export type AssessmentAnswer = { values: string[] };
+export type CodingLanguage = 'python' | 'javascript' | 'java';
 
-export interface AssessmentQuestion {
+/** Options for an MCQ; source for anything that is executed. */
+export type AssessmentAnswer = { values: string[] } | { language?: string; source: string };
+
+export const isChoiceAnswer = (answer: AssessmentAnswer | undefined): answer is { values: string[] } =>
+  Boolean(answer && 'values' in answer);
+
+export interface LanguageChoice {
+  id: CodingLanguage | 'sql';
+  label: string;
+  monaco: string;
+}
+
+export interface EntityMethod {
+  name: string;
+  params: { name: string; type: string }[];
+  returns: string;
+}
+
+export interface QuestionEntity {
+  name: string;
+  constructorParams: { name: string; type: string }[];
+  methods: EntityMethod[];
+}
+
+export interface VisibleTest {
+  name: string;
+  steps: { op: string; args: unknown[]; expect?: string }[];
+}
+
+interface QuestionBase {
   id: string;
-  type: 'multiple_choice';
+  weight: number;
+  conceptArea: string;
+}
+
+export interface McqQuestion extends QuestionBase {
+  type: 'mcq';
   label: string;
   prompt: string;
   context: string;
   selectionMode: 'single' | 'multiple';
   options: string[];
-  correctAnswers: string[];
+}
+
+export interface CodingQuestion extends QuestionBase {
+  type: 'machine_coding' | 'debug';
+  title: string;
+  statement: string;
+  entity: QuestionEntity;
+  languages: LanguageChoice[];
+  minutes: number | null;
+  visibleTests: VisibleTest[];
+  starters: Record<string, string>;
+}
+
+export interface SqlQuestion extends QuestionBase {
+  type: 'sql';
+  title: string;
+  statement: string;
+  schema: string;
+  orderMatters: boolean;
+  sampleSeed: string;
+  sampleName: string;
+  starter: string;
+}
+
+export type AssessmentQuestion = McqQuestion | CodingQuestion | SqlQuestion;
+
+export interface RunResult {
+  name: string;
+  visible: boolean;
+  passed: boolean;
+  step?: string;
+  expected?: string;
+  actual?: string;
+  error?: string;
+}
+
+export interface RunResponse {
+  passed: boolean;
+  passedCount: number;
+  total: number;
+  results: RunResult[];
+  stderr: string;
+  compileOutput: string;
+  runsLeft: number;
+  status?: { id: number; description: string };
+  time?: string | null;
+  memory?: number | null;
+}
+
+/** Everything held back until the paper is submitted. */
+export interface AssessmentReviewItem {
+  id: string;
+  score: number;
+  weight: number;
+  feedback: string;
+  correctAnswers?: string[];
+  explanation?: string;
+  referenceQuery?: string;
+  rubricNotes?: string;
+  bugSummary?: string;
+  referenceSolution?: { language: string; source: string };
+  results?: RunResult[];
 }
 
 export interface AssessmentAttempt {
   id: string;
   problemId: string;
   status: AssessmentStatus;
+  kind: 'LLD' | 'HLD' | null;
   score: number | null;
+  maxScore: number | null;
+  passRatio: number;
+  language: CodingLanguage | null;
   startedAt: string | null;
   submittedAt: string | null;
   completedAt: string | null;
   questions: AssessmentQuestion[];
   answers: Record<string, AssessmentAnswer>;
+  review?: AssessmentReviewItem[];
 }
 
 export interface AssessmentResponse {

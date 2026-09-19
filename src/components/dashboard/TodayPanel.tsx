@@ -17,7 +17,7 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
 
   const onToggle = (problem: Problem, solved: boolean) => toggle.mutate({ problem, solved });
   const startAssessment = async (problem: Problem) => {
-    const response = await assessment.mutateAsync(problem.id);
+    const response = await assessment.mutateAsync({ problemId: problem.id });
     navigate(`/optimus/${response.attempt.id}`);
   };
 
@@ -76,7 +76,7 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
                         index={index}
                         onToggle={kind === 'DSA' ? onToggle : undefined}
                         onAssess={kind === 'DSA' ? undefined : startAssessment}
-                        pending={(toggle.isPending && toggle.variables?.problem.id === problem.id) || (assessment.isPending && assessment.variables === problem.id)}
+                        pending={(toggle.isPending && toggle.variables?.problem.id === problem.id) || (assessment.isPending && assessment.variables?.problemId === problem.id)}
                       />
                     ))}
                   </ul>

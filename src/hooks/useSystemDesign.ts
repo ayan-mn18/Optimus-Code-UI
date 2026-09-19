@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { AssessmentAnswer } from '@/lib/types';
+import type { AssessmentAnswer, AssessmentAttempt } from '@/lib/types';
 
 export const systemDesignKey = (kind: 'LLD' | 'HLD') => ['system-design', kind] as const;
 
@@ -23,6 +23,25 @@ export function useAssessment(attemptId: string | undefined) {
     queryFn: () => api.assessment(attemptId!),
     enabled: Boolean(attemptId),
     staleTime: 0,
+    // A paper is written on demand, and grading can be waiting on the code
+    // runner. Both are transient states worth polling out of.
+    refetchInterval: (query) => {
+      const status = (query.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt?.status;
+      return status === 'generating' || status === 'grading' ? 4000 : false;
+    },
+  });
+}
+
+export function useAbandonAssessment(attemptId: string) {
+  return useMutation({
+    mutationFn: () => api.abandonAssessment(attemptId),
+  });
+}
+
+export function useRunAssessmentAnswer(attemptId: string) {
+  return useMutation({
+    mutationFn: ({ questionId, answer }: { questionId: string; answer: AssessmentAnswer }) =>
+      api.runAssessmentAnswer(attemptId, questionId, answer),
   });
 }
 

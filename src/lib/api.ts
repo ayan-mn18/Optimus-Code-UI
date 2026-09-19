@@ -11,7 +11,11 @@ import type {
   TodayResponse,
   User,
   AssessmentAnswer,
+  AssessmentAttempt,
   AssessmentResponse,
+  CodingLanguage,
+  LanguageChoice,
+  RunResponse,
   DailyGoals,
   SystemDesignListResponse,
   Subscription,
@@ -159,10 +163,15 @@ export const api = {
   systemDesignProblem: (problemId: string) =>
     request<{ problem: Problem }>(`/api/system-design/${problemId}`),
 
-  createAssessment: (problemId: string) =>
-    request<AssessmentResponse>('/api/assessments', { method: 'POST', ...body({ problemId }) }),
+  createAssessment: ({ problemId, language }: { problemId: string; language?: CodingLanguage }) =>
+    request<AssessmentResponse>('/api/assessments', { method: 'POST', ...body({ problemId, language }) }),
+
+  assessmentLanguages: () => request<{ languages: LanguageChoice[] }>('/api/assessments/languages'),
 
   assessment: (attemptId: string) => request<AssessmentResponse>(`/api/assessments/${attemptId}`),
+
+  abandonAssessment: (attemptId: string) =>
+    request<{ abandoned: boolean; attemptId: string }>(`/api/assessments/${attemptId}`, { method: 'DELETE' }),
 
   saveAssessmentAnswer: (attemptId: string, questionId: string, answer: AssessmentAnswer) =>
     request<{ answer: { question_id: string; answer: AssessmentAnswer; submitted_at: string } }>(
@@ -170,8 +179,11 @@ export const api = {
       { method: 'PATCH', ...body({ answer }) },
     ),
 
+  runAssessmentAnswer: (attemptId: string, questionId: string, answer: AssessmentAnswer) =>
+    request<RunResponse>(`/api/assessments/${attemptId}/answers/${questionId}/run`, { method: 'POST', ...body({ answer }) }),
+
   submitAssessment: (attemptId: string) =>
-    request<{ passed: boolean; score: number; results: { questionId: string; score: number; feedback: string }[] }>(
+    request<{ pending?: boolean; passed?: boolean; score?: number; maxScore?: number; attempt: AssessmentAttempt }>(
       `/api/assessments/${attemptId}/submit`,
       { method: 'POST' },
     ),
