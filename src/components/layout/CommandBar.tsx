@@ -17,6 +17,12 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { SearchResult } from '@/lib/types';
+import {
+  createCommandSearchIndex,
+  resultRecord,
+  searchCommandIndex,
+  type CommandSearchRecord,
+} from '@/lib/commandSearch';
 import { cn } from '@/lib/utils';
 
 interface CommandItem {
@@ -47,6 +53,46 @@ function resultItem(result: SearchResult): CommandItem {
   };
 }
 
+function actionRecord(action: CommandItem): CommandSearchRecord {
+  return {
+    id: action.id,
+    label: action.label,
+    detail: action.detail,
+    type: 'action',
+    to: action.to ?? '',
+    resultType: '',
+    resultId: '',
+    slug: '',
+    kind: '',
+    topic: '',
+    subtopic: '',
+    difficulty: '',
+  };
+}
+
+function recordItem(record: CommandSearchRecord): CommandItem {
+  if (record.type === 'action') {
+    return QUICK_ACTIONS.find((action) => action.id === record.id) ?? {
+      id: record.id,
+      label: record.label,
+      detail: record.detail,
+      icon: Search,
+      to: record.to,
+    };
+  }
+
+  return resultItem({
+    type: record.resultType as SearchResult['type'],
+    id: record.resultId,
+    slug: record.slug,
+    title: record.label,
+    kind: record.kind as SearchResult['kind'],
+    topic: record.topic || null,
+    subtopic: record.subtopic || null,
+    difficulty: (record.difficulty || null) as SearchResult['difficulty'],
+  });
+}
+
 function resultPath(result: SearchResult): string {
   if (result.type === 'blog') return `/blogs/${result.slug}`;
   const search = encodeURIComponent(result.title);
@@ -63,11 +109,22 @@ export function CommandBar() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const normalizedQuery = query.trim();
+  const hasSearch = normalizedQuery.length >= 2;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedQuery(query.trim()), 120);
     return () => window.clearTimeout(timer);
   }, [query]);
+
+  const indexQuery = useQuery({
+    queryKey: ['command-search-index'],
+    queryFn: api.searchIndex,
+    enabled: open,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
+    retry: false,
+  });
 
   const searchQuery = useQuery({
     queryKey: ['command-search', debouncedQuery.toLocaleLowerCase()],
@@ -76,14 +133,37 @@ export function CommandBar() {
     staleTime: 30_000,
     gcTime: 5 * 60_000,
     retry: false,
+    placeholderData: (previous) => previous,
   });
 
-  const hasSearch = query.trim().length >= 2;
+  const commandIndex = useMemo(() => createCommandSearchIndex([
+    ...QUICK_ACTIONS.map(actionRecord),
+    ...(indexQuery.data?.items ?? []).map(resultRecord),
+  ]), [indexQuery.data?.items]);
+
+  const localItems = useMemo(() => {
+    if (!hasSearch) return [];
+    return searchCommandIndex(commandIndex, normalizedQuery).map(recordItem);
+  }, [commandIndex, hasSearch, normalizedQuery]);
+
   const items = useMemo(() => {
     if (!hasSearch) return QUICK_ACTIONS;
-    if (debouncedQuery !== query.trim()) return [];
-    return (searchQuery.data?.items ?? []).map(resultItem);
-  }, [debouncedQuery, hasSearch, query, searchQuery.data?.items]);
+    const remoteItems = debouncedQuery === normalizedQuery && !searchQuery.isPlaceholderData
+      ? (searchQuery.data?.items ?? []).map(resultItem)
+      : [];
+    const seen = new Set<string>();
+    return [...localItems, ...remoteItems].filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  }, [debouncedQuery, hasSearch, localItems, normalizedQuery, searchQuery.data?.items, searchQuery.isPlaceholderData]);
+
+  const isSearching = hasSearch && (
+    debouncedQuery !== normalizedQuery
+    || searchQuery.isFetching
+    || (indexQuery.isFetching && !indexQuery.data)
+  );
 
   const close = () => {
     setOpen(false);
@@ -185,10 +265,10 @@ export function CommandBar() {
             </div>
 
             <div className="max-h-[min(56vh,28rem)] overflow-y-auto p-2" role="listbox" aria-label="Command results">
-              {hasSearch && (searchQuery.isFetching || debouncedQuery !== query.trim()) && (
-                <p className="px-3 py-8 text-center text-xs text-ink-dim">Searching the catalogue…</p>
+              {isSearching && (
+                <p className="px-3 py-3 text-center text-xs text-ink-dim">Searching the catalogue…</p>
               )}
-              {hasSearch && debouncedQuery === query.trim() && !searchQuery.isFetching && !items.length && (
+              {hasSearch && !isSearching && !items.length && (
                 <p className="px-3 py-8 text-center text-xs text-ink-dim">No matching problems or write-ups.</p>
               )}
               {!hasSearch && (

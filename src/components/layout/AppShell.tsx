@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Braces, BookOpen, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
+import { BrainCircuit, Braces, BookOpen, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
 import { useMarkMilestoneViewed, usePendingMilestone } from '@/hooks/useMilestone';
+import { hasProAccess, useSubscription } from '@/hooks/useBilling';
 import { MilestoneModal } from '@/components/milestone/MilestoneModal';
 import { Logo } from './Logo';
 import { CommandBar } from './CommandBar';
@@ -39,6 +40,8 @@ const MOBILE_NAV = [
 export function AppShell() {
   const { user, logout } = useAuth();
   const { data: today } = useToday();
+  const subscription = useSubscription();
+  const isPro = Boolean(user?.billingExempt || hasProAccess(subscription.data));
   const navigate = useNavigate();
   const location = useLocation();
   const [systemDesignOpen, setSystemDesignOpen] = useState(() => {
@@ -156,11 +159,15 @@ export function AppShell() {
         )}
 
         <div className="mt-auto space-y-2 pt-6">
-          <div className="flex items-center gap-2.5 rounded-xl px-2 py-2">
-            <Avatar name={user?.name ?? '?'} />
+          <div className={cn(
+            'flex items-center gap-2.5 rounded-xl px-2 py-2',
+            isPro && 'border border-brand/20 bg-brand/[0.06] shadow-[0_0_28px_-12px_rgba(139,123,255,0.7)]',
+          )}>
+            <Avatar name={user?.name ?? '?'} pro={isPro} />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-ink">{user?.name}</p>
               <p className="truncate text-[11px] text-ink-dim">{user?.email}</p>
+              {isPro && <p className="flex items-center gap-1 text-[10px] font-semibold text-brand-pale"><Sparkles className="size-3 shrink-0" /> Optimus Pro</p>}
             </div>
           </div>
           <button
@@ -185,7 +192,7 @@ export function AppShell() {
                 <span className="tabular-nums">{today.streak.current}</span>
               </span>
             )}
-            <Link to="/settings" aria-label="Open settings"><Avatar name={user?.name ?? '?'} /></Link>
+            <Link to="/settings" aria-label="Open settings"><Avatar name={user?.name ?? '?'} pro={isPro} /></Link>
           </div>
         </header>
 
@@ -217,7 +224,7 @@ export function AppShell() {
   );
 }
 
-function Avatar({ name }: { name: string }) {
+function Avatar({ name, pro = false }: { name: string; pro?: boolean }) {
   const initials = name
     .split(' ')
     .map((part) => part[0])
@@ -229,9 +236,15 @@ function Avatar({ name }: { name: string }) {
   return (
     <span
       aria-hidden
-      className="grid size-9 shrink-0 place-items-center rounded-full bg-linear-to-br from-brand-strong to-accent text-xs font-semibold text-canvas"
+      className={cn(
+        'relative grid size-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-canvas',
+        pro
+          ? 'bg-linear-to-br from-brand-pale via-brand to-accent shadow-[0_0_22px_rgba(139,123,255,0.5)] ring-2 ring-brand/30 ring-offset-2 ring-offset-canvas'
+          : 'bg-linear-to-br from-brand-strong to-accent',
+      )}
     >
       {initials}
+      {pro && <span className="pointer-events-none absolute inset-0 rounded-full bg-linear-to-br from-white/45 via-transparent to-transparent" />}
     </span>
   );
 }

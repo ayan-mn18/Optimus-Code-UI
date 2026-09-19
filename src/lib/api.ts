@@ -26,6 +26,7 @@ import type {
   ResearchBrief,
   ResearchJob,
   SearchResponse,
+  SearchIndexResponse,
 } from './types';
 
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/$/, '');
@@ -249,6 +250,8 @@ export const api = {
   researchStatus: () => request<{ available: boolean }>('/api/research/status'),
 
   search: (query: string) => request<SearchResponse>(`/api/search?q=${encodeURIComponent(query)}`),
+
+  searchIndex: () => request<SearchIndexResponse>('/api/search/index'),
 
   cancelResearch: (id: string) => request<{ job: ResearchJob }>(`/api/research/${id}`, { method: 'DELETE' }),
 

@@ -79,6 +79,10 @@ export interface SearchResponse {
   items: SearchResult[];
 }
 
+export interface SearchIndexResponse {
+  items: SearchResult[];
+}
+
 export interface SystemDesignListResponse {
   kind: 'LLD' | 'HLD';
   items: Problem[];

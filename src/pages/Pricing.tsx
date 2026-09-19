@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, ShieldCheck, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '@/components/ui/primitives';
 import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
+import { PRO_WELCOME_PENDING_KEY } from '@/hooks/useBilling';
 
 const FEATURES = [
   'Complete LLD and HLD catalogues',
@@ -99,6 +100,10 @@ function PlanCard({ title, price, suffix, badge, featured, loading, onChoose }: 
 }
 
 export function BillingSuccess() {
+  useEffect(() => {
+    sessionStorage.setItem(PRO_WELCOME_PENDING_KEY, '1');
+  }, []);
+
   return (
     <div className="grid min-h-dvh place-items-center px-5">
       <Card className="max-w-lg text-center">

@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
+import { ProWelcomeModal } from '@/components/billing/ProWelcomeModal';
 import { TodayPanel } from '@/components/dashboard/TodayPanel';
 import { StatTiles } from '@/components/dashboard/StatTiles';
 import { Heatmap } from '@/components/charts/Heatmap';
@@ -7,12 +9,22 @@ import { TopicMastery } from '@/components/charts/TopicMastery';
 import { DifficultySplit } from '@/components/charts/DifficultySplit';
 import { Card, Skeleton } from '@/components/ui/primitives';
 import { useOverview, useToday } from '@/hooks/useChallenge';
+import { hasProAccess, PRO_WELCOME_PENDING_KEY, useSubscription } from '@/hooks/useBilling';
 import { useAuth } from '@/store/auth';
 
 export function Dashboard() {
   const { user, enrollment } = useAuth();
   const today = useToday();
   const overview = useOverview();
+  const subscription = useSubscription();
+  const [showProWelcome, setShowProWelcome] = useState(false);
+
+  useEffect(() => {
+    if (!subscription.isSuccess || !hasProAccess(subscription.data)) return;
+    if (sessionStorage.getItem(PRO_WELCOME_PENDING_KEY) !== '1') return;
+    sessionStorage.removeItem(PRO_WELCOME_PENDING_KEY);
+    setShowProWelcome(true);
+  }, [subscription.data, subscription.isSuccess]);
 
   if (!enrollment) return <Navigate to="/onboarding" replace />;
 
@@ -31,6 +43,7 @@ export function Dashboard() {
   }
 
   return (
+    <>
     <div className="space-y-6">
       <div className="hidden lg:block">
         <p className="text-xs uppercase tracking-wider text-ink-dim">Dashboard</p>
@@ -54,6 +67,8 @@ export function Dashboard() {
         </div>
       </div>
     </div>
+    {showProWelcome && <ProWelcomeModal onDismiss={() => setShowProWelcome(false)} />}
+    </>
   );
 }
 

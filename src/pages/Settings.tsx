@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
 import { Card, CardHeader, Button, Field } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
 import { useUpdateGoals } from '@/hooks/useChallenge';
+import { hasProAccess, useSubscription } from '@/hooks/useBilling';
 import { api } from '@/lib/api';
 import { browserTimezone, formatDate } from '@/lib/utils';
 import type { DailyGoals, ProblemKind } from '@/lib/types';
@@ -11,7 +12,8 @@ import type { DailyGoals, ProblemKind } from '@/lib/types';
 export function Settings() {
   const { user, enrollment, setUser } = useAuth();
   const updateGoals = useUpdateGoals();
-  const subscription = useQuery({ queryKey: ['subscription'], queryFn: api.subscription });
+  const subscription = useSubscription();
+  const isPro = Boolean(user?.billingExempt || hasProAccess(subscription.data));
 
   const [name, setName] = useState(user?.name ?? '');
   const [goals, setGoals] = useState<DailyGoals>({
@@ -109,18 +111,32 @@ export function Settings() {
       </Card>
 
       <Card>
-        <CardHeader title="Subscription" hint="DSA is free for every signed-in account. Optimus Pro unlocks LLD, HLD, and blogs." />
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface/50 px-4 py-3">
+        <CardHeader
+          title="Subscription"
+          hint="DSA is free for every signed-in account. Optimus Pro unlocks LLD, HLD, and blogs."
+          action={(
+            <span className={isPro
+              ? 'inline-flex items-center gap-1.5 rounded-full border border-brand/35 bg-brand/10 px-2.5 py-1 text-[11px] font-semibold text-brand-pale shadow-[0_0_18px_rgba(139,123,255,0.18)]'
+              : 'inline-flex items-center rounded-full border border-line bg-elevated px-2.5 py-1 text-[11px] font-medium text-ink-dim'}
+            >
+              {isPro && <Sparkles className="size-3" />}
+              {isPro ? 'PRO MEMBER' : 'FREE MEMBER'}
+            </span>
+          )}
+        />
+        <div className={isPro
+          ? 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand/25 bg-brand/[0.07] px-4 py-3'
+          : 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface/50 px-4 py-3'}>
           <div>
             <p className="text-sm font-medium text-ink">
-              {subscription.data?.billingExempt
+              {isPro && subscription.data?.billingExempt
                 ? 'Complimentary Pro access'
-                : subscription.data?.subscription
+                : isPro && subscription.data?.subscription
                   ? `${subscription.data.subscription.plan} plan`
                   : 'DSA free · Pro not active'}
             </p>
             <p className="mt-1 text-xs capitalize text-ink-dim">
-              {subscription.data?.billingExempt ? 'Legacy account exception' : subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}
+              {isPro && subscription.data?.billingExempt ? 'Legacy account exception' : subscription.data?.subscription?.status ?? 'Choose monthly or annual billing.'}
             </p>
           </div>
           {!subscription.data?.billingExempt && subscription.data?.subscription && (
