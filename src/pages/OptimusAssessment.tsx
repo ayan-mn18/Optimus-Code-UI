@@ -561,7 +561,7 @@ function CodePane({ question, answer, defaultLanguage, onChange, onRun, running,
             </div>
 
             <div className="flex items-center justify-between gap-3 border-b border-line bg-[#0b0b10] px-3 py-2 text-[10px] text-ink-dim">
-              <span className="inline-flex items-center gap-1.5 font-mono text-ink-muted"><FileCode2 className="size-3.5 text-brand-pale" /> solution.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : 'java'}</span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-ink-muted"><FileCode2 className="size-3.5 text-brand-pale" /> solution.{language === 'javascript' ? 'js' : language === 'python' ? 'py' : language === 'cpp' ? 'cpp' : 'java'}</span>
               <span className="hidden sm:inline">Autosaved when you continue</span>
             </div>
 

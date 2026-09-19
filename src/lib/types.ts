@@ -231,7 +231,7 @@ export interface MilestoneRecap {
 }
 
 export type AssessmentStatus = 'generating' | 'active' | 'grading' | 'passed' | 'failed';
-export type CodingLanguage = 'python' | 'javascript' | 'java';
+export type CodingLanguage = 'python' | 'javascript' | 'java' | 'cpp';
 
 /** Options for an MCQ; source for anything that is executed. */
 export type AssessmentAnswer = { values: string[] } | { language?: string; source: string };
