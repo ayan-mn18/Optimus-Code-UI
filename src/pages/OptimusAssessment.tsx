@@ -180,8 +180,29 @@ export function OptimusAssessment() {
     setRuns((current) => ({ ...current, [question.id]: result }));
   };
 
+  /**
+   * Flush every answer the server does not already have.
+   *
+   * Navigation only ever persisted the question being left, so a single save
+   * that did not land — a dropped request, a click that beat the re-render —
+   * left the sidebar reading "10/10 answered" while submission was refused for
+   * questions the student could see they had answered, with no way to find
+   * which. Sweeping before submit makes that state resolve itself.
+   */
+  const persistAll = async () => {
+    const saved = attempt.answers ?? {};
+    const pending = attempt.questions.filter((item) => {
+      const answer = answers[item.id];
+      if (!answer || !isAnswered(item, answer)) return false;
+      return JSON.stringify(saved[item.id]) !== JSON.stringify(answer);
+    });
+    for (const item of pending) {
+      await save.mutateAsync({ questionId: item.id, answer: answers[item.id] });
+    }
+  };
+
   const submitAll = async () => {
-    await persistCurrent();
+    await persistAll();
     await submit.mutateAsync();
     await query.refetch();
   };
@@ -772,6 +793,13 @@ function ReviewCard({ index, question, review, answer }: {
           {scored}/{question.weight}
         </span>
       </div>
+
+      {/* A question built around a diagram cannot be reviewed without it. */}
+      {question.type === 'mcq' && question.diagram && (
+        <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-surface p-3">
+          <Mermaid code={question.diagram.source} caption={question.diagram.caption || undefined} />
+        </div>
+      )}
 
       {review?.feedback && <p className="mt-2 text-xs text-ink-muted">{review.feedback}</p>}
 

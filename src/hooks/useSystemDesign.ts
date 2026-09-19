@@ -32,7 +32,11 @@ export function useAssessment(attemptId: string | undefined) {
       const attempt = (currentQuery.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt;
       const preparing = attempt && (attempt.status === 'generating'
         || (attempt.status === 'active' && !attempt.generationComplete));
-      if (preparing && !streamConnected) return 1500;
+      // Poll either way while a paper is being written, just far less often once
+      // the stream is up. A stream that dies quietly used to leave this screen
+      // frozen on "Preparing question 1" for as long as the student was willing
+      // to look at it, because nothing else was checking.
+      if (preparing) return streamConnected ? 5000 : 1500;
       return attempt?.status === 'grading' ? 1500 : false;
     },
   });
@@ -41,8 +45,12 @@ export function useAssessment(attemptId: string | undefined) {
   const preparing = Boolean(attempt && (attempt.status === 'generating'
     || (attempt.status === 'active' && !attempt.generationComplete)));
 
+  // `streamConnected` must not be a dependency here. Setting it from inside the
+  // effect while it is also a dependency re-runs the effect, whose cleanup
+  // aborts the connection it had just opened — and the old guard then refused
+  // to reopen it, so the stream died on connect and never came back.
   useEffect(() => {
-    if (!attemptId || !preparing || streamConnected) return undefined;
+    if (!attemptId || !preparing) return undefined;
     const controller = new AbortController();
     let mounted = true;
 
@@ -76,6 +84,9 @@ export function useAssessment(attemptId: string | undefined) {
         }
       } catch (error) {
         if (mounted && (error as Error)?.name !== 'AbortError') setStreamConnected(false);
+      } finally {
+        // Whether it ended cleanly or fell over, polling takes the slack back.
+        if (mounted) setStreamConnected(false);
       }
     };
     void consume();
@@ -83,7 +94,7 @@ export function useAssessment(attemptId: string | undefined) {
       mounted = false;
       controller.abort();
     };
-  }, [attemptId, preparing, queryClient, streamConnected]);
+  }, [attemptId, preparing, queryClient]);
 
   return query;
 }
