@@ -16,6 +16,7 @@
     { "source": "/recap", "destination": "/index.html" },
     { "source": "/leaderboard", "destination": "/index.html" },
     { "source": "/settings", "destination": "/index.html" },
+    { "source": "/optimus/new/:problemId", "destination": "/index.html" },
     { "source": "/optimus/:attemptId", "destination": "/index.html" },
     { "source": "/billing/success", "destination": "/index.html" }
   ]
