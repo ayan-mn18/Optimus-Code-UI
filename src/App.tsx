@@ -69,16 +69,25 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
       </Route>
 
-      <Route
-        path="/optimus/:attemptId"
-        element={
-          <RequireAuth>
-            <Suspense fallback={<div className="grid min-h-dvh place-items-center"><Spinner className="size-7" /></div>}>
-              <OptimusAssessment />
-            </Suspense>
-          </RequireAuth>
-        }
-      />
+      {/*
+        Two ways into the same screen. `/optimus/new/:problemId` is what the
+        catalogue links to: the exam chrome renders immediately and the attempt
+        is created from inside it, so a click costs a route change rather than a
+        round trip. It swaps itself for the real id as soon as one exists.
+      */}
+      {['/optimus/new/:problemId', '/optimus/:attemptId'].map((path) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <RequireAuth>
+              <Suspense fallback={<div className="grid min-h-dvh place-items-center"><Spinner className="size-7" /></div>}>
+                <OptimusAssessment />
+              </Suspense>
+            </RequireAuth>
+          }
+        />
+      ))}
 
       <Route
         path="/billing/success"
