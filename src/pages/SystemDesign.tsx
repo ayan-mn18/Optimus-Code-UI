@@ -93,7 +93,7 @@ export function SystemDesign() {
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
             {kind === 'LLD'
-              ? 'Study the design, then work through an Optimus paper. Coding-enabled problems open a Judge0-backed workspace with public and hidden tests.'
+              ? 'Study the design, then work through an Optimus paper. Coding-enabled problems include a secure workspace with public and hidden tests.'
               : 'Study the architecture, then defend it in a focused Optimus paper. Questions cover the decisions senior interviewers probe most.'}
           </p>
         </div>
@@ -126,7 +126,7 @@ export function SystemDesign() {
           </div>
           <div className="flex flex-wrap gap-2 text-[10px]">
             <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-ink-muted">80% to pass</span>
-            {kind === 'LLD' && <span className="rounded-full border border-brand/25 bg-brand/10 px-2.5 py-1 text-brand-pale">{codingCount} Judge0 coding {codingCount === 1 ? 'problem' : 'problems'}</span>}
+            {kind === 'LLD' && <span className="rounded-full border border-brand/25 bg-brand/10 px-2.5 py-1 text-brand-pale">{codingCount} coding {codingCount === 1 ? 'problem' : 'problems'}</span>}
             {kind === 'HLD' && <span className="rounded-full border border-accent/25 bg-accent/[0.07] px-2.5 py-1 text-accent">Architecture track</span>}
           </div>
         </div>
@@ -259,7 +259,7 @@ export function SystemDesign() {
                             {problem.subtopic && <Chip>{problem.subtopic}</Chip>}
                             <DifficultyBadge difficulty={problem.difficulty} />
                             {problem.blogSlug && <Chip className="border-brand/25 bg-brand/10 text-brand-pale">Write-up</Chip>}
-                            {problem.coding_enabled && <Chip className="border-accent/25 bg-accent/[0.07] text-accent"><Code2 className="size-3" /> Judge0 coding</Chip>}
+                            {problem.coding_enabled && <Chip className="border-accent/25 bg-accent/[0.07] text-accent"><Code2 className="size-3" /> Coding available</Chip>}
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">

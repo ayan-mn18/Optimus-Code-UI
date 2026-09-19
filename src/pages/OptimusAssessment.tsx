@@ -103,7 +103,7 @@ export function OptimusAssessment() {
     );
   }
 
-  if (attempt.status === 'generating') {
+  if (attempt.status === 'generating' && attempt.questions.length === 0) {
     return (
       <>
         <Waiting
@@ -143,7 +143,12 @@ export function OptimusAssessment() {
     await query.refetch();
   };
 
-  const total = attempt.questions.length;
+  const saveUntilNextQuestion = async () => {
+    await persistCurrent();
+    await query.refetch();
+  };
+
+  const total = attempt.generationComplete ? attempt.questions.length : attempt.totalQuestions;
   const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const seconds = String(elapsed % 60).padStart(2, '0');
 
@@ -207,6 +212,12 @@ export function OptimusAssessment() {
 
         <main className="min-w-0 overflow-y-auto px-4 py-7 sm:px-8 lg:px-10 lg:py-9">
           <div className="mx-auto max-w-6xl">
+            {!attempt.generationComplete && (
+              <div className="mb-5 flex items-center gap-2 rounded-xl border border-brand/25 bg-brand/10 px-3 py-2 text-xs text-brand-pale">
+                <Spinner className="size-3.5" />
+                <span>Question {attempt.questionsReady} is ready. Optimus is preparing the next one in the background.</span>
+              </div>
+            )}
             <p className="text-[10px] uppercase tracking-[0.14em] text-brand-pale">
               Question {current + 1} of {total} · {QUESTION_LABEL[question.type]} · worth {question.weight}
             </p>
@@ -244,8 +255,10 @@ export function OptimusAssessment() {
 
             <div className="mt-6 flex items-center justify-between gap-3">
               <Button variant="outline" disabled={current === 0 || save.isPending} onClick={() => move(current - 1)} icon={<ChevronLeft className="size-4" />}>Previous</Button>
-              {current === total - 1 ? (
-                <Button loading={submit.isPending || save.isPending} disabled={answeredCount < total} onClick={submitAll} icon={<Sparkles className="size-4" />}>Submit assessment</Button>
+              {current === attempt.questions.length - 1 && !attempt.generationComplete ? (
+                <Button variant="outline" loading={save.isPending || query.isFetching} disabled={!isAnswered(question, answers[question.id])} onClick={saveUntilNextQuestion} icon={<Spinner className="size-3.5" />}>Preparing next question…</Button>
+              ) : current === total - 1 ? (
+                <Button loading={submit.isPending || save.isPending} disabled={!attempt.generationComplete || answeredCount < total} onClick={submitAll} icon={<Sparkles className="size-4" />}>Submit assessment</Button>
               ) : (
                 <Button loading={save.isPending} onClick={() => move(current + 1)}>Save and continue <ChevronRight className="size-4" /></Button>
               )}
@@ -388,7 +401,7 @@ function CodePane({ question, answer, defaultLanguage, onChange, onRun, running,
                 </span>
                 <div>
                   <p className="text-xs font-semibold">Optimus code runner</p>
-                  <p className="mt-0.5 text-[10px] text-ink-dim">Judge0 isolated sandbox</p>
+                  <p className="mt-0.5 text-[10px] text-ink-dim">Secure isolated sandbox</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-[10px] text-ink-dim">
@@ -496,7 +509,7 @@ function SqlPane({ question, source, onChange, onRun, running, result }: {
                 <span className="grid size-8 place-items-center rounded-lg border border-accent/25 bg-accent/10 text-accent"><Database className="size-4" /></span>
                 <div>
                   <p className="text-xs font-semibold">SQLite query runner</p>
-                  <p className="mt-0.5 text-[10px] text-ink-dim">Judge0 isolated sample database</p>
+                  <p className="mt-0.5 text-[10px] text-ink-dim">Isolated sample database</p>
                 </div>
               </div>
               <span className="inline-flex items-center gap-1 rounded-full border border-good/25 bg-good/[0.07] px-2 py-1 text-[10px] text-good"><WifiOff className="size-3" /> Offline execution</span>

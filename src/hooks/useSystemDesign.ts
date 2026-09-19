@@ -23,11 +23,14 @@ export function useAssessment(attemptId: string | undefined) {
     queryFn: () => api.assessment(attemptId!),
     enabled: Boolean(attemptId),
     staleTime: 0,
-    // A paper is written on demand, and grading can be waiting on the code
-    // runner. Both are transient states worth polling out of.
+    // Generation publishes question one as soon as it is ready, then keeps
+    // filling the JSON question set in the background. Keep polling while the
+    // paper is incomplete, as well as while grading waits on the runner.
     refetchInterval: (query) => {
-      const status = (query.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt?.status;
-      return status === 'generating' || status === 'grading' ? 4000 : false;
+      const attempt = (query.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt;
+      return attempt && (attempt.status === 'generating'
+        || attempt.status === 'grading'
+        || (attempt.status === 'active' && !attempt.generationComplete)) ? 1500 : false;
     },
   });
 }

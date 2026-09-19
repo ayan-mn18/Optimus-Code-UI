@@ -347,6 +347,10 @@ export interface AssessmentAttempt {
   startedAt: string | null;
   submittedAt: string | null;
   completedAt: string | null;
+  questionsReady: number;
+  totalQuestions: number;
+  generationComplete: boolean;
+  generationError: string | null;
   questions: AssessmentQuestion[];
   answers: Record<string, AssessmentAnswer>;
   review?: AssessmentReviewItem[];
