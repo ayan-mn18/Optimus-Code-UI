@@ -105,14 +105,16 @@ export function OptimusAssessment() {
 
   if (attempt.status === 'generating' && attempt.questions.length === 0) {
     return (
-      <>
-        <Waiting
-          title="Optimus is writing your paper"
-          body="Every question is generated for you and executed before you see it. This takes a moment."
-          onQuit={() => setConfirmQuit(true)}
-        />
-        {confirmQuit && <QuitDialog loading={abandon.isPending} error={abandon.error?.message} onKeepWorking={() => setConfirmQuit(false)} onQuit={quitAssessment} />}
-      </>
+      <PreparingAssessment
+        problem={problem}
+        elapsed={elapsed}
+        onQuit={() => setConfirmQuit(true)}
+        confirmQuit={confirmQuit}
+        quitLoading={abandon.isPending}
+        quitError={abandon.error?.message}
+        onKeepWorking={() => setConfirmQuit(false)}
+        onConfirmQuit={quitAssessment}
+      />
     );
   }
   if (attempt.status === 'grading') return <Waiting title="Optimus is grading" body="Your code is running against the hidden tests. This page updates itself." />;
@@ -282,6 +284,60 @@ function Waiting({ title, body, onQuit }: { title: string; body: string; onQuit?
         <p className="mt-2 text-sm text-ink-muted">{body}</p>
         {onQuit && <Button className="mt-5" size="sm" variant="danger" onClick={onQuit} icon={<XCircle className="size-3.5" />}>Quit assessment</Button>}
       </Card>
+    </div>
+  );
+}
+
+function PreparingAssessment({
+  problem,
+  elapsed,
+  onQuit,
+  confirmQuit,
+  quitLoading,
+  quitError,
+  onKeepWorking,
+  onConfirmQuit,
+}: {
+  problem: { title: string };
+  elapsed: number;
+  onQuit: () => void;
+  confirmQuit: boolean;
+  quitLoading: boolean;
+  quitError?: string;
+  onKeepWorking: () => void;
+  onConfirmQuit: () => void;
+}) {
+  const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const seconds = String(elapsed % 60).padStart(2, '0');
+  return (
+    <div className="flex min-h-dvh flex-col bg-canvas">
+      <header className="flex min-h-16 items-center justify-between gap-4 border-b border-line bg-canvas/95 px-4 sm:px-6">
+        <div className="flex items-center gap-3">
+          <span className="grid size-9 place-items-center rounded-xl bg-linear-to-br from-brand-strong to-accent text-sm font-bold text-white">O</span>
+          <div>
+            <p className="text-sm font-semibold">Optimus</p>
+            <p className="text-[10px] uppercase tracking-wider text-ink-dim">Focused assessment</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="hidden items-center gap-2 rounded-full border border-line px-3 py-1.5 text-[10px] text-ink-muted sm:inline-flex">
+            <LockKeyhole className="size-3 text-good" /> Navigation locked during assessment
+          </span>
+          <span className="font-mono text-xs text-ink-muted">{minutes}:{seconds}</span>
+          <Button size="sm" variant="danger" onClick={onQuit} icon={<XCircle className="size-3.5" />}>Quit</Button>
+        </div>
+      </header>
+      <main className="grid min-h-0 flex-1 place-items-center px-5 py-10">
+        <Card className="w-full max-w-xl text-center">
+          <Spinner className="mx-auto size-8" />
+          <p className="mt-5 text-[10px] uppercase tracking-[0.14em] text-brand-pale">{problem.title}</p>
+          <h1 className="mt-2 text-xl font-semibold">Preparing question 1</h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-muted">
+            Optimus is generating and verifying the first question. It will appear here as soon as it is ready; the remaining questions will continue loading in the background.
+          </p>
+        </Card>
+      </main>
+      {confirmQuit && <QuitDialog loading={quitLoading} error={quitError} onKeepWorking={onKeepWorking} onQuit={onConfirmQuit} />}
     </div>
   );
 }
