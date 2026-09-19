@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Braces, BookOpen, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake, Sparkles } from 'lucide-react';
+import { BrainCircuit, Braces, BookOpen, ChevronDown, CreditCard, LayoutDashboard, Settings, LogOut, Flame, Trophy, Share2, Snowflake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/store/auth';
 import { useToday } from '@/hooks/useChallenge';
@@ -167,7 +167,7 @@ export function AppShell() {
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-ink">{user?.name}</p>
               <p className="truncate text-[11px] text-ink-dim">{user?.email}</p>
-              {isPro && <p className="flex items-center gap-1 text-[10px] font-semibold text-brand-pale"><Sparkles className="size-3 shrink-0" /> Optimus Pro</p>}
+              {isPro && <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-pale">Optimus Pro</p>}
             </div>
           </div>
           <button

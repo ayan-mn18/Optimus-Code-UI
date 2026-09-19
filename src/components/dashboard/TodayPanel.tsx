@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Sparkles, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
+import { CheckCircle2, PartyPopper, AlertTriangle, Layers, Library, Snowflake } from 'lucide-react';
 import { DayRing } from '@/components/charts/DayRing';
 import { ProblemRow } from './ProblemRow';
 import { Button, Card } from '@/components/ui/primitives';
@@ -50,7 +50,7 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
 
             {today.bonusCount > 0 && (
               <p className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs text-brand-pale">
-                <Sparkles className="size-3.5" />
+                <CheckCircle2 className="size-3.5" />
                 {pluralize(today.bonusCount, 'bonus solve')} today
               </p>
             )}
@@ -113,7 +113,7 @@ export function TodayPanel({ today }: { today: TodayResponse }) {
       {today.bonusProblems.length > 0 && (
         <Card>
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-            <Sparkles className="size-4 text-brand" />
+            <CheckCircle2 className="size-4 text-brand" />
             Bonus solves today
           </h2>
           <ul className="space-y-2">
@@ -251,7 +251,7 @@ function KeepGoing({ today }: { today: TodayResponse }) {
           onClick={() => extend.mutate()}
           loading={extend.isPending}
           disabled={!today.canExtend || !latestSetComplete}
-          icon={<Sparkles className="size-4" />}
+          icon={<Layers className="size-4" />}
           className="flex-1"
         >
           Deal another {today.targets.DSA} DSA

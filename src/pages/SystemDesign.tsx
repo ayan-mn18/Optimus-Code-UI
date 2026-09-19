@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Code2, ListChecks, LockKeyhole, RotateCcw, Search, Sparkles, Youtube } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Code2, ListChecks, LockKeyhole, Play, RotateCcw, Search, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
@@ -290,7 +290,7 @@ export function SystemDesign() {
                             variant={problem.solved ? 'outline' : 'primary'}
                             loading={createAssessment.isPending && createAssessment.variables?.problemId === problem.id}
                             onClick={() => startAssessment(problem)}
-                            icon={<Sparkles className="size-3.5" />}
+                            icon={<Play className="size-3.5" />}
                           >
                             {problem.solved ? 'Review' : problem.coding_enabled ? 'Start coding paper' : 'Start Optimus'}
                           </Button>

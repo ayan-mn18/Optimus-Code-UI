@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import {
   Bug, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Cpu, Database, FileCode2,
-  Gauge, ListChecks, LockKeyhole, Play, ShieldCheck, Sparkles, Terminal, WifiOff, XCircle,
+  Gauge, ListChecks, LockKeyhole, Play, ShieldCheck, Terminal, WifiOff, XCircle,
 } from 'lucide-react';
 import { Button, Card, Spinner } from '@/components/ui/primitives';
 import {
@@ -260,7 +260,7 @@ export function OptimusAssessment() {
               {current === attempt.questions.length - 1 && !attempt.generationComplete ? (
                 <Button variant="outline" loading={save.isPending || query.isFetching} disabled={!isAnswered(question, answers[question.id])} onClick={saveUntilNextQuestion} icon={<Spinner className="size-3.5" />}>Preparing next question…</Button>
               ) : current === total - 1 ? (
-                <Button loading={submit.isPending || save.isPending} disabled={!attempt.generationComplete || answeredCount < total} onClick={submitAll} icon={<Sparkles className="size-4" />}>Submit assessment</Button>
+                <Button loading={submit.isPending || save.isPending} disabled={!attempt.generationComplete || answeredCount < total} onClick={submitAll} icon={<CheckCircle2 className="size-4" />}>Submit assessment</Button>
               ) : (
                 <Button loading={save.isPending} onClick={() => move(current + 1)}>Save and continue <ChevronRight className="size-4" /></Button>
               )}

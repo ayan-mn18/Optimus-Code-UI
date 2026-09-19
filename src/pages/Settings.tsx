@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 import { Card, CardHeader, Button, Field } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
 import { useUpdateGoals } from '@/hooks/useChallenge';
@@ -119,7 +118,6 @@ export function Settings() {
               ? 'inline-flex items-center gap-1.5 rounded-full border border-brand/35 bg-brand/10 px-2.5 py-1 text-[11px] font-semibold text-brand-pale shadow-[0_0_18px_rgba(139,123,255,0.18)]'
               : 'inline-flex items-center rounded-full border border-line bg-elevated px-2.5 py-1 text-[11px] font-medium text-ink-dim'}
             >
-              {isPro && <Sparkles className="size-3" />}
               {isPro ? 'PRO MEMBER' : 'FREE MEMBER'}
             </span>
           )}

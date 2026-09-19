@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, ExternalLink, Youtube, FileText, RotateCcw, Sparkles } from 'lucide-react';
+import { Check, ExternalLink, Youtube, FileText, RotateCcw, Play } from 'lucide-react';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
 import { DifficultyBadge, Chip } from '@/components/ui/primitives';
 import type { Problem } from '@/lib/types';
@@ -72,7 +72,7 @@ export function ProblemRow({ problem, index = 0, onToggle, onAssess, pending, co
           onClick={() => onAssess(problem)}
           className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-2.5 text-xs font-medium text-brand-pale hover:border-brand/60 disabled:opacity-50"
         >
-          <Sparkles className="size-3.5" /> Optimus
+          <Play className="size-3.5" /> Optimus
         </button>
       )}
       <div className="flex shrink-0 items-center gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">

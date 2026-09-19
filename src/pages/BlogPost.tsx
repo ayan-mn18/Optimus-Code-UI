@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Bookmark, Clock, Eye, Heart, Pencil, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bookmark, Clock, Eye, FileText, Heart, Pencil } from 'lucide-react';
 import { ApiError } from '@/lib/api';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { ProLockCard } from '@/components/billing/ProLockCard';
@@ -39,7 +39,7 @@ export function BlogPost() {
     }
     return (
       <EmptyState
-        icon={<Sparkles className="size-6" />}
+        icon={<FileText className="size-6" />}
         title="This write-up is not available"
         body={query.error?.message ?? 'It may have been unpublished or removed.'}
       />
@@ -126,7 +126,7 @@ export function BlogPost() {
                 <p className="mt-0.5 text-xs text-ink-dim">Take the Optimus assessment for this problem.</p>
               </div>
               <Link to={`/system-design/${blog.kind === 'HLD' ? 'hld' : 'lld'}`}>
-                <Button size="sm" icon={<Sparkles className="size-3.5" />}>Open in catalogue</Button>
+                <Button size="sm" icon={<ArrowRight className="size-3.5" />}>Open in catalogue</Button>
               </Link>
             </Card>
           )}

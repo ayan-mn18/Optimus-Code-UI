@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { BrainCircuit, BookOpen, Check, Code2, Sparkles, X } from 'lucide-react';
+import { BrainCircuit, BookOpen, Check, Code2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/primitives';
 
@@ -31,7 +31,7 @@ export function ProWelcomeModal({ onDismiss }: { onDismiss: () => void }) {
 
           <div className="relative px-5 pb-6 pt-10 sm:px-10 sm:pb-9 sm:pt-14">
             <div className="mx-auto grid size-20 place-items-center rounded-3xl border border-brand/35 bg-brand/15 text-brand-pale shadow-[0_0_70px_rgba(124,92,255,0.38)]">
-              <Sparkles className="size-10" />
+              <span className="text-sm font-semibold uppercase tracking-[0.28em]">Pro</span>
             </div>
             <p className="mt-7 text-center text-xs font-medium uppercase tracking-[0.28em] text-brand-pale">Optimus Pro unlocked</p>
             <h1 id="pro-welcome-title" className="mt-3 text-center text-3xl font-semibold tracking-tight sm:text-4xl">

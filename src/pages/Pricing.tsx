@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, ShieldCheck, Sparkles } from 'lucide-react';
+import { Check, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '@/components/ui/primitives';
 import { Logo } from '@/components/layout/Logo';
@@ -94,7 +94,7 @@ function PlanCard({ title, price, suffix, badge, featured, loading, onChoose }: 
       <ul className="mt-6 space-y-3">
         {FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2 text-sm text-ink-muted"><Check className="mt-0.5 size-4 shrink-0 text-good" />{feature}</li>)}
       </ul>
-      <Button className="mt-7 w-full" size="lg" loading={loading} onClick={onChoose} icon={<Sparkles className="size-4" />}>Choose {title.toLowerCase()}</Button>
+      <Button className="mt-7 w-full" size="lg" loading={loading} onClick={onChoose}>Choose {title.toLowerCase()}</Button>
     </Card>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search, Sparkles } from 'lucide-react';
+import { Bookmark, ChevronLeft, ChevronRight, FileEdit, PenLine, RotateCcw, Search } from 'lucide-react';
 import { ApiError } from '@/lib/api';
 import { Button, Card, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { ProLockCard } from '@/components/billing/ProLockCard';
@@ -202,7 +202,7 @@ export function Blogs() {
         </>
       ) : (
         <EmptyState
-          icon={<Sparkles className="size-6" />}
+          icon={<FileEdit className="size-6" />}
           title={savedOnly ? 'No saved write-ups yet' : filtersActive ? 'Nothing matches' : 'No write-ups yet'}
           body={savedOnly ? 'Use Save on an article to keep it in your reading list.' : filtersActive ? 'Try another company or topic.' : 'Be the first — publish one from your own notes.'}
         />

@@ -9,7 +9,6 @@ import {
   Download,
   Flame,
   Share2,
-  Sparkles,
   Target,
   Trophy,
   X,
@@ -289,7 +288,7 @@ function RhythmSlide({ recap }: { recap: MilestoneRecap }) {
   const cards = [
     { icon: CalendarDays, label: 'Active days', value: String(recap.totals.activeDays), hint: `${rhythm.averagePerActiveDay} per active day` },
     { icon: Flame, label: 'Best streak', value: `${recap.streak.longest}d`, hint: `${recap.streak.greenDays} green days` },
-    { icon: Sparkles, label: 'Bonus solves', value: String(recap.totals.bonus), hint: 'Beyond daily targets' },
+    { icon: Check, label: 'Bonus solves', value: String(recap.totals.bonus), hint: 'Beyond daily targets' },
     { icon: Target, label: 'Weekly pace', value: String(rhythm.weeklyPace), hint: 'Problems per week' },
   ];
 
