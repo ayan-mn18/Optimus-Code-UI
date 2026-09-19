@@ -1,13 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import Editor from '@monaco-editor/react';
 import {
   Bug, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Cpu, Database, FileCode2,
   Gauge, ListChecks, LockKeyhole, Play, ShieldCheck, Terminal, WifiOff, XCircle,
 } from 'lucide-react';
 import { Button, Card, Spinner } from '@/components/ui/primitives';
+import { Mermaid } from '@/components/blog/Mermaid';
 import {
-  useAbandonAssessment, useAssessment, useRunAssessmentAnswer, useSaveAssessmentAnswer, useSubmitAssessment,
+  useAbandonAssessment, useAssessment, useCreateAssessment, useRunAssessmentAnswer,
+  useSaveAssessmentAnswer, useSubmitAssessment,
 } from '@/hooks/useSystemDesign';
 import { cn } from '@/lib/utils';
 import { isChoiceAnswer } from '@/lib/types';
@@ -37,9 +40,11 @@ const QUESTION_LABEL = {
 } as const;
 
 export function OptimusAssessment() {
-  const { attemptId } = useParams();
+  const { attemptId, problemId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const query = useAssessment(attemptId);
+  const create = useCreateAssessment();
   const abandon = useAbandonAssessment(attemptId ?? '');
   const save = useSaveAssessmentAnswer(attemptId ?? '');
   const run = useRunAssessmentAnswer(attemptId ?? '');
@@ -47,15 +52,33 @@ export function OptimusAssessment() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswer>>({});
   const [runs, setRuns] = useState<Record<string, RunResponse>>({});
-  const [elapsed, setElapsed] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const [openedAt] = useState(() => Date.now());
   const [confirmQuit, setConfirmQuit] = useState(false);
+
+  // Arrived from the catalogue: the screen is already on, so create the attempt
+  // here and swap the URL for its id. Seeding the cache with the response means
+  // the questions it carries render without a second fetch.
+  const creating = useRef(false);
+  useEffect(() => {
+    if (attemptId || !problemId || creating.current) return;
+    creating.current = true;
+    void create.mutateAsync({ problemId })
+      .then((response) => {
+        queryClient.setQueryData(['assessment', response.attempt.id], response);
+        navigate(`/optimus/${response.attempt.id}`, { replace: true });
+      })
+      .catch(() => {
+        // Surfaced by the error card below; the ref keeps it from looping.
+      });
+  }, [attemptId, problemId, create, navigate, queryClient]);
 
   useEffect(() => {
     if (query.data?.attempt.answers) setAnswers((current) => ({ ...query.data.attempt.answers, ...current }));
   }, [query.data?.attempt.answers]);
 
   useEffect(() => {
-    const interval = window.setInterval(() => setElapsed((seconds) => seconds + 1), 1000);
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
     const warn = (event: BeforeUnloadEvent) => {
       event.preventDefault();
       event.returnValue = '';
@@ -73,6 +96,10 @@ export function OptimusAssessment() {
 
   const response = query.data;
   const attempt = response?.attempt;
+  // Timed questions need the real clock, not the clock of this browser tab —
+  // a refresh used to send it back to 00:00 mid machine-coding task.
+  const startedAt = attempt?.startedAt ? Date.parse(attempt.startedAt) : openedAt;
+  const elapsed = Math.max(0, Math.floor((now - startedAt) / 1000));
   const problem = response?.problem;
   const question = attempt?.questions[current];
   const answeredCount = useMemo(
@@ -80,7 +107,21 @@ export function OptimusAssessment() {
     [answers, attempt?.questions],
   );
 
-  if (!attemptId) return <Navigate to="/system-design/lld" replace />;
+  if (!attemptId && !problemId) return <Navigate to="/system-design/lld" replace />;
+  if (!attemptId) {
+    return create.isError
+      ? (
+        <div className="grid min-h-dvh place-items-center px-5">
+          <Card className="max-w-md border-bad/30">
+            <p className="text-sm text-bad">{create.error?.message ?? 'The assessment could not be started.'}</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button size="sm" variant="ghost" onClick={() => navigate('/system-design/lld', { replace: true })}>Back to assessments</Button>
+            </div>
+          </Card>
+        </div>
+      )
+      : <Waiting title="Opening your assessment" body="Setting up the paper." />;
+  }
   if (query.isLoading) return <div className="grid min-h-dvh place-items-center"><Spinner className="size-7" /></div>;
   const leaveAssessment = () => navigate(problem?.kind === 'HLD' ? '/system-design/hld' : '/system-design/lld', { replace: true });
   const quitAssessment = async () => {
@@ -377,6 +418,11 @@ function ChoicePane({ question, values, onChange }: {
     <>
       <h1 className="mt-2 max-w-4xl text-2xl font-semibold tracking-tight sm:text-3xl">{question.prompt}</h1>
       {question.context && <p className="mt-3 max-w-3xl whitespace-pre-wrap text-sm leading-relaxed text-ink-muted">{question.context}</p>}
+      {question.diagram && (
+        <div className="mt-5 max-w-3xl overflow-x-auto rounded-xl border border-line bg-surface p-4">
+          <Mermaid code={question.diagram.source} caption={question.diagram.caption || undefined} />
+        </div>
+      )}
       <div className="mt-7 grid gap-2">
         <p className="mb-1 text-xs text-ink-dim">{question.selectionMode === 'multiple' ? 'Select all that apply.' : 'Select one answer.'}</p>
         {question.options.map((option) => {

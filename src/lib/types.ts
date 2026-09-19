@@ -268,11 +268,19 @@ interface QuestionBase {
   conceptArea: string;
 }
 
+/** A topology, a request sequence or a write path, when prose reads worse. */
+export interface QuestionDiagram {
+  type: 'mermaid';
+  source: string;
+  caption: string;
+}
+
 export interface McqQuestion extends QuestionBase {
   type: 'mcq';
   label: string;
   prompt: string;
   context: string;
+  diagram: QuestionDiagram | null;
   selectionMode: 'single' | 'multiple';
   options: string[];
 }

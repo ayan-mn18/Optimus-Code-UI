@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BookOpen, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Code2, ListChecks, LockKeyhole, Play, RotateCcw, Search, Youtube } from 'lucide-react';
 import { Button, Card, Chip, DifficultyBadge, EmptyState, Skeleton } from '@/components/ui/primitives';
-import { useCreateAssessment, useSystemDesign } from '@/hooks/useSystemDesign';
+import { useSystemDesign } from '@/hooks/useSystemDesign';
 import { cn, youtubeWatchUrl } from '@/lib/utils';
 import { ApiError } from '@/lib/api';
 import type { Difficulty, Problem } from '@/lib/types';
@@ -16,7 +16,6 @@ export function SystemDesign() {
   const [searchParams] = useSearchParams();
   const kind = params.kind?.toLowerCase() === 'hld' ? 'HLD' : 'LLD';
   const query = useSystemDesign(kind);
-  const createAssessment = useCreateAssessment();
   const navigate = useNavigate();
   const [search, setSearch] = useState(() => searchParams.get('search') ?? '');
   const [topic, setTopic] = useState('all');
@@ -69,9 +68,10 @@ export function SystemDesign() {
     setStatus('all');
   };
 
-  const startAssessment = async (problem: Problem) => {
-    const response = await createAssessment.mutateAsync({ problemId: problem.id });
-    navigate(`/optimus/${response.attempt.id}`);
+  // Navigate first. The exam screen creates the attempt itself, so the click
+  // costs a route change rather than a round trip to the API.
+  const startAssessment = (problem: Problem) => {
+    navigate(`/optimus/new/${problem.id}`);
   };
 
   const toggleTopic = (name: string) => {
@@ -198,12 +198,6 @@ export function SystemDesign() {
         </div>
       </Card>
 
-      {createAssessment.isError && (
-        <p role="alert" className="rounded-xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
-          {createAssessment.error.message}
-        </p>
-      )}
-
       {isLocked ? (
         <Card className="border-brand/30 bg-brand/[0.06] p-8 text-center">
           <span className="mx-auto grid size-12 place-items-center rounded-2xl border border-brand/30 bg-brand/10 text-brand-pale">
@@ -288,7 +282,6 @@ export function SystemDesign() {
                           <Button
                             size="sm"
                             variant={problem.solved ? 'outline' : 'primary'}
-                            loading={createAssessment.isPending && createAssessment.variables?.problemId === problem.id}
                             onClick={() => startAssessment(problem)}
                             icon={<Play className="size-3.5" />}
                           >
