@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Optimus Code — Build the habit. Pass the test.</title>
+  <desc id="desc">Free DSA practice and LLD/HLD assessments with an 80% passing score.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08080b" />
+      <stop offset="1" stop-color="#0f0f14" />
+    </linearGradient>
+    <radialGradient id="ambient">
+      <stop offset="0" stop-color="#7c5cff" stop-opacity="0.15" />
+      <stop offset="1" stop-color="#7c5cff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4b5fd" />
+      <stop offset="0.55" stop-color="#7c5cff" />
+      <stop offset="1" stop-color="#22d3ee" />
+    </linearGradient>
+    <linearGradient id="headline">
+      <stop offset="0" stop-color="#c4b5fd" />
+      <stop offset="1" stop-color="#8b7bff" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)" />
+  <ellipse cx="1010" cy="220" rx="480" ry="400" fill="url(#ambient)" />
+  <path d="M0 1.5H1200" stroke="url(#accent)" stroke-width="3" />
+
+  <g transform="translate(64 58) scale(0.48)">
+    <rect width="104" height="104" rx="28" fill="#0f0f14" stroke="url(#accent)" stroke-width="6" />
+    <circle cx="52" cy="52" r="38" fill="none" stroke="url(#accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="184 55" transform="rotate(-58 52 52)" />
+    <circle cx="84" cy="28" r="7" fill="#22d3ee" />
+    <path d="M58 27 34 56h14l-5 22 24-29H53z" fill="#f2f2f7" stroke="#0f0f14" stroke-width="2.5" stroke-linejoin="round" />
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="130" y="94" fill="#f2f2f7" font-size="27" font-weight="700" letter-spacing="-0.5">Optimus Code</text>
+    <text x="68" y="235" fill="#f2f2f7" font-size="76" font-weight="700" letter-spacing="-2.5">Build the habit.</text>
+    <text x="68" y="324" fill="url(#headline)" font-size="76" font-weight="700" letter-spacing="-2.5">Pass the test.</text>
+    <text x="72" y="384" fill="#c2c2cf" font-size="25">Free DSA practice. LLD &amp; HLD assessments.</text>
+    <text x="72" y="426" fill="#a1a1b0" font-size="23">Learn the concept. Earn the completion.</text>
+
+    <circle cx="960" cy="270" r="113" fill="#0f0f19" stroke="#252434" stroke-width="11" />
+    <circle cx="960" cy="270" r="113" fill="none" stroke="url(#accent)" stroke-width="11" stroke-linecap="round" stroke-dasharray="568 142" transform="rotate(-90 960 270)" />
+    <text x="960" y="271" text-anchor="middle" fill="#f2f2f7" font-size="62" font-weight="700" letter-spacing="-2">80%</text>
+    <text x="960" y="306" text-anchor="middle" fill="#a1a1b0" font-size="14" letter-spacing="2">PASSING SCORE</text>
+    <text x="960" y="423" text-anchor="middle" fill="#c4b5fd" font-size="18" letter-spacing="3">LLD + HLD</text>
+
+    <path d="M72 500H1128" stroke="#272731" />
+    <text x="72" y="555" fill="#a1a1b0" font-size="21">optimusco.de</text>
+    <text x="1128" y="555" text-anchor="end" fill="#a1a1b0" font-size="18">Daily practice. Progress you can prove.</text>
+  </g>
+</svg>
