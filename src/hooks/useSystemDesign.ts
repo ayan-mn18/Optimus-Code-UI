@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { AssessmentAnswer, AssessmentAttempt } from '@/lib/types';
+import type { AssessmentAnswer, AssessmentAttempt, AssessmentResponse } from '@/lib/types';
 
 export const systemDesignKey = (kind: 'LLD' | 'HLD') => ['system-design', kind] as const;
 
@@ -18,21 +19,73 @@ export function useCreateAssessment() {
 }
 
 export function useAssessment(attemptId: string | undefined) {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const [streamConnected, setStreamConnected] = useState(false);
+  const query = useQuery({
     queryKey: ['assessment', attemptId],
     queryFn: () => api.assessment(attemptId!),
     enabled: Boolean(attemptId),
     staleTime: 0,
-    // Generation publishes question one as soon as it is ready, then keeps
-    // filling the JSON question set in the background. Keep polling while the
-    // paper is incomplete, as well as while grading waits on the runner.
-    refetchInterval: (query) => {
-      const attempt = (query.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt;
-      return attempt && (attempt.status === 'generating'
-        || attempt.status === 'grading'
-        || (attempt.status === 'active' && !attempt.generationComplete)) ? 1500 : false;
+    // Keep a short-poll fallback only until the authenticated progress stream
+    // is connected. If the stream drops, polling resumes automatically.
+    refetchInterval: (currentQuery) => {
+      const attempt = (currentQuery.state.data as { attempt?: AssessmentAttempt } | undefined)?.attempt;
+      const preparing = attempt && (attempt.status === 'generating'
+        || (attempt.status === 'active' && !attempt.generationComplete));
+      if (preparing && !streamConnected) return 1500;
+      return attempt?.status === 'grading' ? 1500 : false;
     },
   });
+
+  const attempt = query.data?.attempt;
+  const preparing = Boolean(attempt && (attempt.status === 'generating'
+    || (attempt.status === 'active' && !attempt.generationComplete)));
+
+  useEffect(() => {
+    if (!attemptId || !preparing || streamConnected) return undefined;
+    const controller = new AbortController();
+    let mounted = true;
+
+    const consume = async () => {
+      try {
+        const response = await api.assessmentEvents(attemptId, controller.signal);
+        if (!response.ok || !response.body) throw new Error(`Assessment stream failed (${response.status})`);
+        if (mounted) setStreamConnected(true);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (mounted) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let boundary = buffer.indexOf('\n\n');
+          while (boundary >= 0) {
+            const block = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+            const data = block.split('\n')
+              .filter((line) => line.startsWith('data:'))
+              .map((line) => line.slice(5).trim())
+              .join('\n');
+            if (data) {
+              const snapshot = JSON.parse(data) as AssessmentResponse;
+              queryClient.setQueryData(['assessment', attemptId], snapshot);
+            }
+            boundary = buffer.indexOf('\n\n');
+          }
+        }
+      } catch (error) {
+        if (mounted && (error as Error)?.name !== 'AbortError') setStreamConnected(false);
+      }
+    };
+    void consume();
+    return () => {
+      mounted = false;
+      controller.abort();
+    };
+  }, [attemptId, preparing, queryClient, streamConnected]);
+
+  return query;
 }
 
 export function useAbandonAssessment(attemptId: string) {

@@ -171,6 +171,13 @@ export const api = {
 
   assessment: (attemptId: string) => request<AssessmentResponse>(`/api/assessments/${attemptId}`),
 
+  assessmentEvents: (attemptId: string, signal: AbortSignal) => {
+    const headers = new Headers({ accept: 'text/event-stream' });
+    const token = tokenStore.access;
+    if (token) headers.set('authorization', `Bearer ${token}`);
+    return fetch(`${BASE_URL}/api/assessments/${attemptId}/events`, { headers, signal });
+  },
+
   abandonAssessment: (attemptId: string) =>
     request<{ abandoned: boolean; attemptId: string }>(`/api/assessments/${attemptId}`, { method: 'DELETE' }),
 
