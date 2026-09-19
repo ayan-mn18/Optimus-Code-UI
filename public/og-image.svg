@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Optimus Code</title>
+  <desc id="desc">Daily DSA practice and focused system design assessments.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08080b" />
+      <stop offset="0.58" stop-color="#111126" />
+      <stop offset="1" stop-color="#24154d" />
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4b5fd" />
+      <stop offset="0.45" stop-color="#7c5cff" />
+      <stop offset="1" stop-color="#22d3ee" />
+    </linearGradient>
+    <linearGradient id="bolt" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#d9d9ff" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="28" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)" />
+  <circle cx="1030" cy="70" r="230" fill="#7c5cff" opacity="0.2" filter="url(#glow)" />
+  <circle cx="190" cy="585" r="180" fill="#22d3ee" opacity="0.1" filter="url(#glow)" />
+  <path d="M0 2H1200" stroke="url(#ring)" stroke-width="4" />
+
+  <g transform="translate(112 148)">
+    <rect width="104" height="104" rx="28" fill="#0f0f14" stroke="url(#ring)" stroke-width="8" />
+    <circle cx="52" cy="52" r="38" fill="none" stroke="url(#ring)" stroke-width="7" stroke-linecap="round" stroke-dasharray="184 55" transform="rotate(-58 52 52)" />
+    <circle cx="84" cy="28" r="7" fill="#22d3ee" />
+    <path d="M58 27 34 56h14l-5 22 24-29H53z" fill="url(#bolt)" stroke="#0f0f14" stroke-width="2.5" stroke-linejoin="round" />
+  </g>
+
+  <text x="112" y="340" fill="#ffffff" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="76" font-weight="700" letter-spacing="-2">Optimus Code</text>
+  <text x="116" y="406" fill="#c4b5fd" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="30" font-weight="500">Daily DSA practice. Focused LLD and HLD assessments.</text>
+  <text x="116" y="492" fill="#a1a1b0" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="22">Build a problem-solving habit you can prove.</text>
+</svg>
