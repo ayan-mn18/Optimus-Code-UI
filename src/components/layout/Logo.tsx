@@ -52,7 +52,7 @@ export function LogoMark({ className, id = 'mark' }: { className?: string; id?: 
 
 export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
   return (
-    <Link to="/" className={cn('group inline-flex items-center gap-2.5', className)}>
+    <Link to="/" aria-label="Optimus Code home" className={cn('group inline-flex items-center gap-2.5', className)}>
       <LogoMark className="size-9 transition-transform duration-300 group-hover:scale-105" />
       {!compact && (
         <span className="text-[15px] font-semibold tracking-tight">

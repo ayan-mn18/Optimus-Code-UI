@@ -196,13 +196,13 @@ export function AppShell() {
           </div>
         </header>
 
-        <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main id="main-content" tabIndex={-1} className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>
       </div>
 
       {/* ---- bottom nav (mobile) ------------------------------------------ */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-line bg-surface/95 backdrop-blur-xl lg:hidden">
+      <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
         {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}

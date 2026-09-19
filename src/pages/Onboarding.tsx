@@ -32,7 +32,7 @@ export function Onboarding() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-5 py-12">
+    <div id="main-content" role="main" tabIndex={-1} className="flex min-h-dvh items-center justify-center px-5 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -1,6 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Content-Security-Policy", "value": "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests" }
+      ]
+    },
+    {
+      "source": "/social-preview-v4.jpg",
+      "headers": [
+        { "key": "Content-Type", "value": "image/jpeg" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
     {
       "source": "/og-image-v3.png",
       "headers": [
@@ -30,22 +49,24 @@
   ],
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
-    { "source": "/login", "destination": "/index.html" },
-    { "source": "/invite", "destination": "/index.html" },
-    { "source": "/pricing", "destination": "/index.html" },
-    { "source": "/onboarding", "destination": "/index.html" },
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/dsa", "destination": "/index.html" },
-    { "source": "/system-design/:kind", "destination": "/index.html" },
-    { "source": "/blogs", "destination": "/index.html" },
-    { "source": "/blogs/new", "destination": "/index.html" },
-    { "source": "/blogs/:slug", "destination": "/index.html" },
-    { "source": "/blogs/:slug/edit", "destination": "/index.html" },
-    { "source": "/recap", "destination": "/index.html" },
-    { "source": "/leaderboard", "destination": "/index.html" },
-    { "source": "/settings", "destination": "/index.html" },
-    { "source": "/optimus/new/:problemId", "destination": "/index.html" },
-    { "source": "/optimus/:attemptId", "destination": "/index.html" },
-    { "source": "/billing/success", "destination": "/index.html" }
+    { "source": "/privacy", "destination": "/_pages/privacy.html" },
+    { "source": "/terms", "destination": "/_pages/terms.html" },
+    { "source": "/pricing", "destination": "/_pages/pricing.html" },
+    { "source": "/login", "destination": "/_pages/app.html" },
+    { "source": "/invite", "destination": "/_pages/app.html" },
+    { "source": "/onboarding", "destination": "/_pages/app.html" },
+    { "source": "/dashboard", "destination": "/_pages/app.html" },
+    { "source": "/dsa", "destination": "/_pages/app.html" },
+    { "source": "/system-design/:kind", "destination": "/_pages/app.html" },
+    { "source": "/blogs", "destination": "/_pages/app.html" },
+    { "source": "/blogs/new", "destination": "/_pages/app.html" },
+    { "source": "/blogs/:slug", "destination": "/_pages/app.html" },
+    { "source": "/blogs/:slug/edit", "destination": "/_pages/app.html" },
+    { "source": "/recap", "destination": "/_pages/app.html" },
+    { "source": "/leaderboard", "destination": "/_pages/app.html" },
+    { "source": "/settings", "destination": "/_pages/app.html" },
+    { "source": "/optimus/new/:problemId", "destination": "/_pages/app.html" },
+    { "source": "/optimus/:attemptId", "destination": "/_pages/app.html" },
+    { "source": "/billing/success", "destination": "/_pages/app.html" }
   ]
 }

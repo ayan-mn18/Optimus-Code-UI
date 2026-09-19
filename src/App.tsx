@@ -1,27 +1,33 @@
 import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { AppShell } from '@/components/layout/AppShell';
-import { AuthPage } from '@/pages/AuthPage';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Landing } from '@/pages/Landing';
-import { InvitePage } from '@/pages/InvitePage';
-import { Onboarding } from '@/pages/Onboarding';
-import { Dashboard } from '@/pages/Dashboard';
-import { Problems } from '@/pages/Problems';
-import { SystemDesign } from '@/pages/SystemDesign';
-import { Blogs } from '@/pages/Blogs';
-import { BlogPost } from '@/pages/BlogPost';
-import { BlogEditor } from '@/pages/BlogEditor';
-import { Recap } from '@/pages/Recap';
-import { Leaderboard } from '@/pages/Leaderboard';
-import { Settings } from '@/pages/Settings';
-import { BillingSuccess, Pricing } from '@/pages/Pricing';
+import { PageMetadata } from '@/components/layout/PageMetadata';
+import { PrivacyNotice } from '@/components/layout/PrivacyNotice';
 import { Spinner } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
 
 const OptimusAssessment = lazy(() => import('@/pages/OptimusAssessment').then((module) => ({ default: module.OptimusAssessment })));
+const AppShell = lazy(() => import('@/components/layout/AppShell').then((module) => ({ default: module.AppShell })));
+const AuthPage = lazy(() => import('@/pages/AuthPage').then((module) => ({ default: module.AuthPage })));
+const InvitePage = lazy(() => import('@/pages/InvitePage').then((module) => ({ default: module.InvitePage })));
+const Onboarding = lazy(() => import('@/pages/Onboarding').then((module) => ({ default: module.Onboarding })));
+const Dashboard = lazy(() => import('@/pages/Dashboard').then((module) => ({ default: module.Dashboard })));
+const Problems = lazy(() => import('@/pages/Problems').then((module) => ({ default: module.Problems })));
+const SystemDesign = lazy(() => import('@/pages/SystemDesign').then((module) => ({ default: module.SystemDesign })));
+const Blogs = lazy(() => import('@/pages/Blogs').then((module) => ({ default: module.Blogs })));
+const BlogPost = lazy(() => import('@/pages/BlogPost').then((module) => ({ default: module.BlogPost })));
+const BlogEditor = lazy(() => import('@/pages/BlogEditor').then((module) => ({ default: module.BlogEditor })));
+const Recap = lazy(() => import('@/pages/Recap').then((module) => ({ default: module.Recap })));
+const Leaderboard = lazy(() => import('@/pages/Leaderboard').then((module) => ({ default: module.Leaderboard })));
+const Settings = lazy(() => import('@/pages/Settings').then((module) => ({ default: module.Settings })));
+const Pricing = lazy(() => import('@/pages/Pricing').then((module) => ({ default: module.Pricing })));
+const BillingSuccess = lazy(() => import('@/pages/Pricing').then((module) => ({ default: module.BillingSuccess })));
+const Legal = lazy(() => import('@/pages/Legal').then((module) => ({ default: module.Legal })));
+const NotFound = lazy(() => import('@/pages/NotFound').then((module) => ({ default: module.NotFound })));
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, ready } = useAuth();
+  const location = useLocation();
 
   if (!ready) {
     return (
@@ -36,10 +42,17 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <>
+    <a href="#main-content" className="skip-link">Skip to content</a>
+    <PageMetadata />
+    <PrivacyNotice />
+    <Suspense fallback={<div role="status" className="grid min-h-[60vh] place-content-center gap-3 text-center text-sm text-ink-muted"><Spinner className="mx-auto size-6" /><span>Loading your page…</span></div>}>
     <Routes>
       <Route path="/login" element={<AuthPage />} />
       <Route path="/invite" element={<InvitePage />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/privacy" element={<Legal kind="privacy" />} />
+      <Route path="/terms" element={<Legal kind="terms" />} />
 
       <Route
         path="/onboarding"
@@ -99,7 +112,9 @@ export default function App() {
       />
 
       <Route path="/" element={<Landing />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
+    </Suspense>
+    </>
   );
 }

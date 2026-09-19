@@ -276,7 +276,7 @@ export function OptimusAssessment() {
           </div>
         </aside>
 
-        <main className="min-w-0 overflow-y-auto px-4 py-7 sm:px-8 lg:px-10 lg:py-9">
+        <main id="main-content" tabIndex={-1} className="min-w-0 overflow-y-auto px-4 py-7 sm:px-8 lg:px-10 lg:py-9">
           <div className="mx-auto max-w-[1440px]">
             {!attempt.generationComplete && (
               <div className="mb-5 flex items-center gap-2 rounded-xl border border-brand/25 bg-brand/10 px-3 py-2 text-xs text-brand-pale">
@@ -391,7 +391,7 @@ function PreparingAssessment({
           <Button size="sm" variant="danger" onClick={onQuit} icon={<XCircle className="size-3.5" />}>Quit</Button>
         </div>
       </header>
-      <main className="grid min-h-0 flex-1 place-items-center px-5 py-10">
+      <main id="main-content" tabIndex={-1} className="grid min-h-0 flex-1 place-items-center px-5 py-10">
         <Card className="w-full max-w-xl text-center">
           <Spinner className="mx-auto size-8" />
           <p className="mt-5 text-[10px] uppercase tracking-[0.14em] text-brand-pale">{problem.title}</p>

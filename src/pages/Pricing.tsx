@@ -3,6 +3,7 @@ import { Check, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '@/components/ui/primitives';
 import { Logo } from '@/components/layout/Logo';
+import { PublicFooter } from '@/components/layout/PublicFooter';
 import { useAuth } from '@/store/auth';
 import { api } from '@/lib/api';
 import { PRO_WELCOME_PENDING_KEY } from '@/hooks/useBilling';
@@ -51,9 +52,9 @@ export function Pricing() {
         </Link>
       </header>
 
-      <main className="mx-auto max-w-5xl pt-12 text-center">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-5xl pb-12 pt-12 text-center">
         <p className="text-xs uppercase tracking-[0.18em] text-brand-pale">DSA free · System Design Pro</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Keep solving DSA.<br /><span className="gradient-text">Defend every design.</span></h1>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Keep solving DSA.<br /><span className="gradient-text">Test your design skills.</span></h1>
         <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-muted">Sign in to practice the complete DSA library for free. Optimus Pro unlocks LLD and HLD catalogues, assessments, and coding exercises with secure recurring billing through DoDo.</p>
 
         {user?.billingExempt && (
@@ -73,6 +74,7 @@ export function Pricing() {
           <ShieldCheck className="size-4 text-good" /> Secure hosted checkout through DoDo Payments. Automatic renewal reminders and invoices are emailed to you.
         </div>
       </main>
+      <PublicFooter />
     </div>
   );
 }

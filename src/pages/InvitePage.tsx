@@ -5,6 +5,7 @@ import { Logo } from '@/components/layout/Logo';
 import { Button, Card, Field, Spinner } from '@/components/ui/primitives';
 import { api, ApiError } from '@/lib/api';
 import { browserTimezone } from '@/lib/utils';
+import { validateInvite } from '@/lib/formValidation';
 
 export function InvitePage() {
   const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? '');
@@ -48,18 +49,18 @@ export function InvitePage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (status === 'creating') return;
     setError('');
     setFieldErrors({});
 
-    if (values.password !== values.confirm) {
-      setFieldErrors({ confirm: 'Passwords do not match' });
-      return;
-    }
+    const errors = validateInvite(values);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) return;
 
     setStatus('creating');
     try {
       await api.acceptInvite(token, {
-        name: values.name,
+        name: values.name.trim(),
         password: values.password,
         timezone: browserTimezone(),
       });
@@ -74,7 +75,7 @@ export function InvitePage() {
   }
 
   return (
-    <main className="relative grid min-h-dvh place-items-center overflow-hidden px-5 py-12">
+    <main id="main-content" tabIndex={-1} className="relative grid min-h-dvh place-items-center overflow-hidden px-5 py-12">
       <div className="pointer-events-none absolute -left-32 top-0 size-[30rem] rounded-full bg-brand-strong/20 blur-[130px]" />
       <div className="pointer-events-none absolute -right-24 bottom-0 size-[28rem] rounded-full bg-accent/10 blur-[130px]" />
 
@@ -121,6 +122,8 @@ export function InvitePage() {
                 label="Name"
                 name="name"
                 autoComplete="name"
+                minLength={2}
+                maxLength={60}
                 placeholder="Your name"
                 value={values.name}
                 onChange={set('name')}
@@ -132,6 +135,8 @@ export function InvitePage() {
                 name="password"
                 type="password"
                 autoComplete="new-password"
+                minLength={8}
+                maxLength={128}
                 placeholder="At least 8 characters"
                 value={values.password}
                 onChange={set('password')}
@@ -161,9 +166,10 @@ export function InvitePage() {
                 Create account <ArrowRight className="size-4" />
               </Button>
             </form>
+            <p className="mt-5 text-xs leading-6 text-ink-muted">By creating an account, you agree to the <Link to="/terms" className="text-brand-pale underline">terms & conditions</Link>. Read our <Link to="/privacy" className="text-brand-pale underline">privacy policy</Link>.</p>
 
             <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-ink-dim">
-              <ShieldCheck className="size-3.5" /> One-time link. Password stays encrypted.
+              <ShieldCheck className="size-3.5" /> One-time link. Password stored as a hash.
             </p>
           </Card>
         )}

@@ -141,7 +141,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         ref={ref}
         id={fieldId}
         aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${fieldId}-error` : undefined}
+        aria-describedby={error ? `${fieldId}-error` : hint ? `${fieldId}-hint` : undefined}
         className={cn(
           'h-11 w-full rounded-xl border border-line bg-surface/80 px-3.5 text-sm text-ink transition-colors',
           'placeholder:text-ink-dim hover:border-line-strong focus:border-brand/70 focus:outline-none',
@@ -151,11 +151,11 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         {...props}
       />
       {error ? (
-        <p id={`${fieldId}-error`} className="text-xs text-bad">
+        <p id={`${fieldId}-error`} role="alert" className="text-xs text-bad">
           {error}
         </p>
       ) : (
-        hint && <p className="text-xs text-ink-dim">{hint}</p>
+        hint && <p id={`${fieldId}-hint`} className="text-xs text-ink-dim">{hint}</p>
       )}
     </div>
   );

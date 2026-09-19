@@ -2,6 +2,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CalendarDays, RotateCcw, Shuffle, Youtube, ExternalLink } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
+import { PublicFooter } from '@/components/layout/PublicFooter';
 import { HeroScene } from '@/components/landing/HeroScene';
 import { TiltCard } from '@/components/landing/TiltCard';
 import { useTilt } from '@/components/landing/useTilt';
@@ -79,6 +80,8 @@ export function Landing() {
 
       {/* ---- hero ---------------------------------------------------------- */}
       <section
+        id="main-content"
+        tabIndex={-1}
         className="relative mx-auto grid w-full max-w-6xl items-center gap-14 px-5 pb-24 pt-10 lg:grid-cols-[1.05fr_1fr] lg:pt-16"
         onPointerMove={scene.onPointerMove}
         onPointerLeave={scene.onPointerLeave}
@@ -101,7 +104,7 @@ export function Landing() {
           </p>
 
           <Link to="/login" className="mt-8 inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white shadow-[0_10px_30px_-12px] shadow-brand-strong/80 transition hover:brightness-110">
-            Sign in to start
+            Start practicing free
           </Link>
 
         </motion.div>
@@ -210,7 +213,7 @@ export function Landing() {
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
             Unlock LLD and HLD for $10/month or $80/year. DoDo handles secure checkout, automatic renewals, invoices, and payment reminders.
           </p>
-          <Link to="/pricing" className="mt-6 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white">
+          <Link to="/pricing" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl border border-brand/40 px-5 text-sm font-medium text-brand-pale hover:bg-brand/10">
             Compare Pro plans
           </Link>
         </div>
@@ -225,11 +228,11 @@ export function Landing() {
           Sign in to start your first daily practice set.
         </p>
         <Link to="/login" className="mt-7 inline-flex h-10 items-center justify-center rounded-xl bg-linear-to-br from-brand-strong to-brand px-5 text-sm font-medium text-white shadow-[0_10px_30px_-12px] shadow-brand-strong/80 transition hover:brightness-110">
-          Sign in
+          Start practicing free
         </Link>
       </section>
 
-      <footer className="relative border-t border-line">
+      <div className="relative border-t border-line">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-xs text-ink-dim sm:flex-row">
           <Logo compact />
           <p>
@@ -243,9 +246,9 @@ export function Landing() {
               takeuforward.org
             </a>
           </p>
-          <p>© {new Date().getFullYear()} Optimus Code</p>
         </div>
-      </footer>
+      </div>
+      <PublicFooter />
     </div>
   );
 }

@@ -1,0 +1,30 @@
+{
+  "name": "Optimus Code",
+  "origin": "https://www.optimusco.de",
+  "supportEmail": "info@optimusco.de",
+  "country": "India",
+  "image": "/social-preview-v4.jpg",
+  "imageAlt": "Optimus Code artwork: cyan, violet, and blue light trails converge through a dark metallic loop.",
+  "pages": [
+    {
+      "path": "/",
+      "title": "Optimus Code — Free DSA Practice & LLD/HLD Assessments",
+      "description": "Build a daily coding habit with free DSA practice. Take LLD and HLD assessments, write code, and pass the test to complete each system-design problem."
+    },
+    {
+      "path": "/pricing",
+      "title": "Optimus Pro Pricing — LLD & HLD Assessments",
+      "description": "DSA practice is free. Compare Optimus Pro monthly and annual plans for LLD and HLD assessments, coding exercises, and research write-ups."
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy Policy — Optimus Code",
+      "description": "How Optimus Code handles account information, practice progress, payments, support requests, and essential browser storage."
+    },
+    {
+      "path": "/terms",
+      "title": "Terms & Conditions — Optimus Code",
+      "description": "Terms for using Optimus Code's free DSA practice, Pro subscriptions, LLD and HLD assessments, and coding tools."
+    }
+  ]
+}

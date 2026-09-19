@@ -1,5 +1,5 @@
 import { useCallback, useState, type FormEvent } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Flame, Layers, Shuffle } from 'lucide-react';
 import { Button, Field } from '@/components/ui/primitives';
@@ -8,6 +8,7 @@ import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/store/auth';
 import { ApiError } from '@/lib/api';
 import { browserTimezone } from '@/lib/utils';
+import { safeReturnPath, validateLogin } from '@/lib/formValidation';
 
 const HIGHLIGHTS = [
   { icon: Layers, title: 'DSA free for everyone', body: 'Sign in for the complete DSA library. Optimus Pro adds LLD and HLD when you are ready.' },
@@ -21,7 +22,7 @@ export function AuthPage() {
   const location = useLocation();
   const returnState = location.state;
   const destination = returnState && typeof returnState === 'object' && 'from' in returnState && typeof returnState.from === 'string'
-    ? returnState.from
+    ? safeReturnPath(returnState.from)
     : '/dashboard';
 
   const [values, setValues] = useState({
@@ -39,12 +40,16 @@ export function AuthPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (submitting) return;
+    const errors = validateLogin(values);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) return;
     setSubmitting(true);
     setFormError('');
     setFieldErrors({});
 
     try {
-      await login(values);
+      await login({ email: values.email.trim(), password: values.password });
       navigate(destination, { replace: true });
     } catch (error) {
       if (error instanceof ApiError && error.details?.length) {
@@ -115,7 +120,7 @@ export function AuthPage() {
       </aside>
 
       {/* ---- form ----------------------------------------------------------- */}
-      <main className="flex items-center justify-center px-5 py-12">
+      <main id="main-content" tabIndex={-1} className="flex items-center justify-center px-5 py-12">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,6 +141,7 @@ export function AuthPage() {
               name="email"
               type="email"
               autoComplete="email"
+              maxLength={254}
               placeholder="you@example.com"
               value={values.email}
               onChange={set('email')}
@@ -148,6 +154,7 @@ export function AuthPage() {
               name="password"
               type="password"
               autoComplete="current-password"
+              maxLength={128}
               placeholder="••••••••"
               value={values.password}
               onChange={set('password')}
@@ -170,6 +177,7 @@ export function AuthPage() {
           <GoogleSignInButton onCredential={onGoogleCredential} />
           <p className="mt-4 text-center text-[11px] leading-relaxed text-ink-dim">New Google accounts sign up automatically.</p>
           </form>
+          <p className="mt-6 text-center text-xs leading-6 text-ink-muted">By continuing, you agree to the <Link to="/terms" className="text-brand-pale underline underline-offset-4">terms & conditions</Link>. See how we use information in our <Link to="/privacy" className="text-brand-pale underline underline-offset-4">privacy policy</Link>.</p>
 
         </motion.div>
       </main>

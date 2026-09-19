@@ -19,7 +19,7 @@ export function TopicMastery({ topics }: { topics: TopicStat[] }) {
         hint="Problems solved in each topic of the sheets"
         action={
           <Link
-            to="/problems"
+            to="/dsa"
             className="inline-flex items-center gap-1 text-xs text-ink-muted transition-colors hover:text-brand"
           >
             Browse all <ArrowUpRight className="size-3.5" />
@@ -36,7 +36,7 @@ export function TopicMastery({ topics }: { topics: TopicStat[] }) {
               key={topic.topic}
               onMouseEnter={() => setHovered(topic.topic)}
               onMouseLeave={() => setHovered(null)}
-              className="grid grid-cols-[9.5rem_1fr_3.25rem] items-center gap-3"
+              className="grid grid-cols-[minmax(0,1fr)_minmax(2rem,1fr)_3.25rem] items-center gap-2 sm:grid-cols-[9.5rem_1fr_3.25rem] sm:gap-3"
             >
               <span className="truncate text-xs text-ink-muted" title={topic.topic}>
                 {topic.topic}

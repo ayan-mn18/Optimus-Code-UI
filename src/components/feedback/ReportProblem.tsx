@@ -67,6 +67,7 @@ export function ReportProblem() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (status === 'sending') return;
     if (message.trim().length < 10) {
       setError('Tell us a little more about the problem.');
       return;
@@ -78,7 +79,8 @@ export function ReportProblem() {
       await api.reportProblem({
         message: message.trim(),
         steps: steps.trim() || undefined,
-        pageUrl: window.location.href,
+        // Never email query strings or fragments: they can contain tokens or emails.
+        pageUrl: `${window.location.origin}${window.location.pathname}`,
         userAgent: navigator.userAgent,
         screenshot: screenshot ?? undefined,
       });

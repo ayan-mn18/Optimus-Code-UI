@@ -7,6 +7,7 @@ import { hasProAccess, useSubscription } from '@/hooks/useBilling';
 import { api } from '@/lib/api';
 import { browserTimezone, formatDate } from '@/lib/utils';
 import type { DailyGoals, ProblemKind } from '@/lib/types';
+import { PublicFooter } from '@/components/layout/PublicFooter';
 
 export function Settings() {
   const { user, enrollment, setUser } = useAuth();
@@ -22,29 +23,47 @@ export function Settings() {
   });
   const [saved, setSaved] = useState<'profile' | 'goals' | 'leaderboard' | null>(null);
   const [saving, setSaving] = useState(false);
+  const [settingsError, setSettingsError] = useState('');
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState('');
 
   const saveVisibility = async (showOnLeaderboard: boolean) => {
-    const { user: updated } = await api.updateProfile({ showOnLeaderboard });
-    setUser(updated);
-    setSaved('leaderboard');
+    setSettingsError('');
+    try {
+      const { user: updated } = await api.updateProfile({ showOnLeaderboard });
+      setUser(updated);
+      setSaved('leaderboard');
+    } catch (error) {
+      setSettingsError(error instanceof Error ? error.message : 'Could not update visibility');
+    }
   };
 
   const saveProfile = async () => {
+    setSettingsError('');
+    if (name.trim().length < 2 || name.trim().length > 60) {
+      setSettingsError('Name must be between 2 and 60 characters');
+      return;
+    }
     setSaving(true);
     try {
-      const { user: updated } = await api.updateProfile({ name, timezone: browserTimezone() });
+      const { user: updated } = await api.updateProfile({ name: name.trim(), timezone: browserTimezone() });
       setUser(updated);
       setSaved('profile');
+    } catch (error) {
+      setSettingsError(error instanceof Error ? error.message : 'Could not save profile');
     } finally {
       setSaving(false);
     }
   };
 
   const saveGoals = async () => {
-    await updateGoals.mutateAsync(goals);
-    setSaved('goals');
+    setSettingsError('');
+    try {
+      await updateGoals.mutateAsync(goals);
+      setSaved('goals');
+    } catch (error) {
+      setSettingsError(error instanceof Error ? error.message : 'Could not update goals');
+    }
   };
 
   const openBillingPortal = async () => {
@@ -60,7 +79,7 @@ export function Settings() {
   };
 
   const setGoal = (kind: ProblemKind, value: number) => {
-    setGoals((current) => ({ ...current, [kind]: Math.max(0, Math.min(kind === 'DSA' ? 20 : 10, value)) }));
+    setGoals((current) => ({ ...current, [kind]: Math.max(0, Math.min(kind === 'DSA' ? 20 : 10, Number.isFinite(value) ? Math.trunc(value) : 0)) }));
     setSaved(null);
   };
 
@@ -71,10 +90,11 @@ export function Settings() {
         <h1 className="mt-1 text-xl font-semibold tracking-tight">Settings</h1>
       </div>
 
+      {settingsError && <p role="alert" className="rounded-xl border border-bad/30 bg-bad/10 p-3 text-sm text-bad">{settingsError}</p>}
       <Card>
         <CardHeader title="Profile" hint="Your timezone decides when a day rolls over." />
         <div className="space-y-4">
-          <Field label="Name" value={name} onChange={(event) => setName(event.target.value)} />
+          <Field label="Name" value={name} minLength={2} maxLength={60} onChange={(event) => setName(event.target.value)} />
           <Field label="Email" value={user?.email ?? ''} disabled hint="Email cannot be changed." />
           <Field label="Timezone" value={user?.timezone ?? browserTimezone()} disabled hint={`Detected: ${browserTimezone()}`} />
 
@@ -186,6 +206,7 @@ export function Settings() {
           Changes update today&rsquo;s remaining target immediately. Tomorrow starts with the same goals.
         </p>
       </Card>
+      <PublicFooter />
     </div>
   );
 }
