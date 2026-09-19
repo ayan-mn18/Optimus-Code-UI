@@ -1,9 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/invite", "destination": "/index.html" },
+    { "source": "/pricing", "destination": "/index.html" },
+    { "source": "/onboarding", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/dsa", "destination": "/index.html" },
+    { "source": "/system-design/:kind", "destination": "/index.html" },
+    { "source": "/blogs", "destination": "/index.html" },
+    { "source": "/blogs/new", "destination": "/index.html" },
+    { "source": "/blogs/:slug", "destination": "/index.html" },
+    { "source": "/blogs/:slug/edit", "destination": "/index.html" },
+    { "source": "/recap", "destination": "/index.html" },
+    { "source": "/leaderboard", "destination": "/index.html" },
+    { "source": "/settings", "destination": "/index.html" },
+    { "source": "/optimus/:attemptId", "destination": "/index.html" },
+    { "source": "/billing/success", "destination": "/index.html" }
   ]
 }
