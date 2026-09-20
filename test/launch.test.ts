@@ -6,6 +6,26 @@ import { validatePublicConfig } from '../src/lib/publicConfig';
 import { assertNoSecrets, assertSocialMetadata, jpegDimensions, metaTags } from '../scripts/social-metadata.mjs';
 import site from '../src/config/site.json';
 import { pageMetadata } from '../src/lib/pageMetadata';
+import { legacyDsaDestination } from '../src/components/layout/LegacyDsaRedirect';
+
+test('Browse all links directly to the DSA library', () => {
+  const component = readFileSync('src/components/charts/TopicMastery.tsx', 'utf8');
+  assert.match(component, /<Link\s+to="\/dsa"\s+aria-label="Browse all DSA problems"/);
+});
+
+test('legacy DSA navigation retains searches and anchors', () => {
+  assert.deepEqual(legacyDsaDestination({ search: '', hash: '' }), { pathname: '/dsa', search: '', hash: '' });
+  assert.deepEqual(legacyDsaDestination({ search: '?search=two+sum', hash: '#results' }), { pathname: '/dsa', search: '?search=two+sum', hash: '#results' });
+});
+
+test('legacy Browse all URLs have client and hosting redirects to DSA', () => {
+  const app = readFileSync('src/App.tsx', 'utf8');
+  assert.match(app, /<Route path="\/problems" element=\{<LegacyDsaRedirect \/>\} \/>/);
+  assert.match(app, /<Route path="\/dsa" element=\{<Problems \/>\} \/>/);
+  const config = JSON.parse(readFileSync('vercel.json', 'utf8'));
+  assert.deepEqual(config.redirects.find((rule: { source: string }) => rule.source === '/problems'), { source: '/problems', destination: '/dsa', permanent: true });
+  assert.ok(config.rewrites.some((rule: { source: string; destination: string }) => rule.source === '/dsa' && rule.destination === '/_pages/app.html'));
+});
 
 test('login validates fields before contacting the API', () => {
   assert.deepEqual(validateLogin({ email: ' user@example.com ', password: 'password' }), {});

@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Landing } from '@/pages/Landing';
 import { PageMetadata } from '@/components/layout/PageMetadata';
 import { PrivacyNotice } from '@/components/layout/PrivacyNotice';
+import { LegacyDsaRedirect } from '@/components/layout/LegacyDsaRedirect';
 import { Spinner } from '@/components/ui/primitives';
 import { useAuth } from '@/store/auth';
 
@@ -37,7 +38,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return user ? <>{children}</> : <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  return user ? <>{children}</> : <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />;
 }
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/privacy" element={<Legal kind="privacy" />} />
       <Route path="/terms" element={<Legal kind="terms" />} />
+      <Route path="/problems" element={<LegacyDsaRedirect />} />
 
       <Route
         path="/onboarding"

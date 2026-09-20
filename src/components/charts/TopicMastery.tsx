@@ -20,6 +20,7 @@ export function TopicMastery({ topics }: { topics: TopicStat[] }) {
         action={
           <Link
             to="/dsa"
+            aria-label="Browse all DSA problems"
             className="inline-flex items-center gap-1 text-xs text-ink-muted transition-colors hover:text-brand"
           >
             Browse all <ArrowUpRight className="size-3.5" />
